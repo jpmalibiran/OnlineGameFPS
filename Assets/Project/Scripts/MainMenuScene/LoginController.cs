@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class LoginController : MonoBehaviour
@@ -74,6 +75,6 @@ public class LoginController : MonoBehaviour
 
     public void MoveToSelectionScene()
     {
-
+        SceneManager.LoadScene(2);
     }
 }
