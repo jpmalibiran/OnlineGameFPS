@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
   m_Name: Laconic_Bold SDF
   m_EditorClassIdentifier: 
-  hashCode: 0
+  hashCode: 154831950
   material: {fileID: 5510977451777458469}
-  materialHashCode: 0
+  materialHashCode: -797947474
   m_Version: 1.1.0
   m_SourceFontFileGUID: 66ac8cd05cc67a34c998cd6677ab3088
   m_SourceFontFile_EditorRef: {fileID: 12800000, guid: 66ac8cd05cc67a34c998cd6677ab3088, type: 3}
@@ -2565,9 +2565,9 @@ Material:
     - _OutlineWidth: 0
     - _PerspectiveFilter: 0.875
     - _Reflectivity: 10
-    - _ScaleRatioA: 1
-    - _ScaleRatioB: 1
-    - _ScaleRatioC: 1
+    - _ScaleRatioA: 0.8333333
+    - _ScaleRatioB: 0.6770833
+    - _ScaleRatioC: 0.6770833
     - _ScaleX: 1
     - _ScaleY: 1
     - _ShaderFlags: 0
