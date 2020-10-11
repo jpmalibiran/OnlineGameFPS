@@ -8,9 +8,10 @@ using UnityEngine.UI;
 public class LoginController : MonoBehaviour
 {
     public GameObject LoginButton, LoginButtonCover, UserLoginText, PasswordText, TitleText, 
-                      HeadingPanel, HeadingText, LoginButtonText, FadeoutPanel;
+                      HeadingPanel, HeadingText, LoginButtonText, FadeoutPanel, RegisterButton,
+                      RegisterName, RegisterPassword, RegisterLocation, RegisterAge, SubmitCoverButton, SubmitButton;
     private int fakeLoginCount;
-    public bool loggingIn, loggedIn;
+    public bool loggingIn, loggedIn, Registering;
     // Start is called before the first frame update
     void Start()
     {
@@ -21,22 +22,38 @@ public class LoginController : MonoBehaviour
     void Update()
     {
         
-        if(!loggingIn && !loggedIn)
+        if(!loggingIn && !loggedIn && !Registering)
         {
-            if (UserLoginText.GetComponent<TMP_InputField>().text != "")
-                if (PasswordText.GetComponent<TMP_InputField>().text != "")
-                {
+            if (UserLoginText.GetComponent<TMP_InputField>().text != "" &&
+                PasswordText.GetComponent<TMP_InputField>().text != "")
+            {
                     LoginButton.SetActive(true);
                     LoginButtonCover.SetActive(false);
-                }
-            if (UserLoginText.GetComponent<TMP_InputField>().text == "")
-                if (PasswordText.GetComponent<TMP_InputField>().text == "")
-                {
-                    LoginButton.SetActive(false);
-                    LoginButtonCover.SetActive(true);
-                }
+            }        
+            else 
+            {  
+                LoginButton.SetActive(false);
+                LoginButtonCover.SetActive(true);  
+            }             
         }
         
+        if(Registering)
+        {
+
+            if(RegisterName.GetComponent<TMP_InputField>().text !="" &&
+               RegisterPassword.GetComponent<TMP_InputField>().text != "" &&
+               RegisterAge.GetComponent<TMP_InputField>().text != "" &&
+               RegisterLocation.GetComponent<TMP_InputField>().text != "")
+            {
+                SubmitCoverButton.SetActive(false);
+                SubmitButton.SetActive(true);
+            }
+            else { SubmitCoverButton.SetActive(true); SubmitButton.SetActive(false); }
+
+
+        }
+
+
         if(loggingIn)
         {
             
@@ -71,10 +88,53 @@ public class LoginController : MonoBehaviour
         HeadingPanel.SetActive(false);
         HeadingText.SetActive(false);
         FadeoutPanel.SetActive(true);
+        RegisterButton.SetActive(false);
     }
 
     public void MoveToSelectionScene()
     {
         SceneManager.LoadScene(2);
     }
+
+    public void StartRegistration() 
+    {
+        LoginButton.SetActive(false);
+        LoginButtonCover.SetActive(false);
+        UserLoginText.SetActive(false);
+        PasswordText.SetActive(false);
+        HeadingText.GetComponent<TextMeshProUGUI>().text = "Register New Profile";
+        RegisterButton.SetActive(false);
+        //RegisterName, RegisterPassword, RegisterLocation, RegisterAge, SubmitCoverButton, SubmitButton;
+        RegisterName.SetActive(true);
+        RegisterPassword.SetActive(true);
+        RegisterLocation.SetActive(true);
+        RegisterAge.SetActive(true);
+        SubmitCoverButton.SetActive(true);
+        Registering = true;
+    }
+
+    public void ReturnFromRegistration()
+    {
+        HeadingText.GetComponent<TextMeshProUGUI>().text = "User Login";
+        LoginButton.SetActive(true);
+        LoginButtonCover.SetActive(true);
+        UserLoginText.SetActive(true);
+        PasswordText.SetActive(true);
+        RegisterButton.SetActive(true);
+        //RegisterName, RegisterPassword, RegisterLocation, RegisterAge, SubmitCoverButton, SubmitButton;
+        RegisterName.SetActive(false);
+        RegisterPassword.SetActive(false);
+        RegisterLocation.SetActive(false);
+        RegisterAge.SetActive(false);
+        SubmitCoverButton.SetActive(false);
+        SubmitButton.SetActive(false);
+
+        Registering = false;
+    }
+
+    public void CompleteRegistration()
+    {
+
+
+    }    
 }
