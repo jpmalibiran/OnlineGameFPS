@@ -68,6 +68,11 @@ public class SelectionController : MonoBehaviour
         SceneManager.LoadScene(3);
         MusicObject.SetActive(false);
     }
+    
+    public void MoveToProfile()
+    {
+        SceneManager.LoadScene(4);
+    }
     public void CancelMatchmaking()
     {
         QuickPlayButton.SetActive(true);
