@@ -12,9 +12,15 @@ namespace FPSCharController {
     [RequireComponent(typeof(Rigidbody))]
     public class FirstPersonController : MonoBehaviour{
 
+        [Header("Debug Settings")]
+        [SerializeField] private bool bDebug = true;
+        [SerializeField] private bool bVerboseDebug = false;
+
         [Header("References")]
+        [SerializeField] private AudioSource m_audioSrcRef;
         [SerializeField] private Transform m_worldBodyRef;
         [SerializeField] private Transform m_localCamRef;
+        [SerializeField] private Camera m_mainCamRef; //TODO hide in inspector and use this instead of Camera.main!
 
         private Rigidbody m_rbRef;
         private Vector3 m_moveDirection = Vector3.zero;
@@ -55,26 +61,51 @@ namespace FPSCharController {
             
         }
 
-        public void FireWeapon() {
+        public HitData FireWeapon() {
             Vector3 mousePosition;
-            mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition); 
-            int layerMask = 1 << 5;
-            layerMask = ~layerMask;
+            HitData newHitData;
 
-            if (Physics.Raycast(mousePosition, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity, layerMask)){
-                Debug.DrawRay(mousePosition, transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
-                Debug.Log("Did Hit");
+            if (m_audioSrcRef) {
+                m_audioSrcRef.Play();
+            }
+
+            mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition); 
+
+            //int layerMask = 1 << 5;
+            //layerMask = ~layerMask;
+
+            //if (Physics.Raycast(mousePosition, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity)){
+            if (Physics.Raycast(mousePosition, Camera.main.transform.TransformDirection(Vector3.forward), out hit)){
+                //Debug.DrawRay(mousePosition, Camera.main.transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
+                
+                if (hit.transform.tag == "Player") {
+                    if (bVerboseDebug) { Debug.Log("[Notice] Player hit!"); }
+                    newHitData = new HitData(true, 0, 0, 1, hit.distance);
+                }
+                else {
+                    if (bVerboseDebug) { Debug.Log("[Notice] Object hit!"); }
+                    newHitData = new HitData(false, 0, 0, 1, hit.distance);
+                }
             }
             else{
-                Debug.DrawRay(mousePosition, transform.TransformDirection(Vector3.forward) * 1000, Color.yellow);
-                Debug.Log("Did not Hit");
+                //Debug.DrawRay(mousePosition, Camera.main.transform.TransformDirection(Vector3.forward) * hit.distance * 1000, Color.yellow);
+                if (bVerboseDebug) { Debug.Log("[Notice] No Objects hit."); }
+
+                newHitData = new HitData(false, 0, 0, 1, hit.distance);
             }
 
+            return newHitData; //TODO make this useful
         }
 
         public void UpdateMoveVector(Vector3 getVector) {
 
             m_moveDirection = this.transform.TransformPoint(getVector);
+        }
+
+        //TODO move rotation calculation here from LocalClientInput
+        public void UpdateFPSView(Vector3 getWorldBodyRotation, Vector3 getLocalCamRotation) {
+            m_worldBodyRef.eulerAngles = getWorldBodyRotation;
+            m_localCamRef.localEulerAngles = getLocalCamRotation;
         }
 
         IEnumerator DelayMoveUpdate() {

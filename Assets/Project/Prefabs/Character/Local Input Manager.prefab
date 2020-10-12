@@ -26,7 +26,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1767075520}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -1993, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1999872752792399216}
@@ -373,7 +373,7 @@ MonoBehaviour:
   m_charCtrlRef: {fileID: 0}
   m_charCamContainerRef: {fileID: 0}
   m_charBodyRef: {fileID: 0}
-  m_muzzleFlashRef: {fileID: 7708104867415266296}
+  m_muzzleFlashUIRef: {fileID: 7708104867415266296}
   m_charMainCamRef: {fileID: 1767075521}
   m_CamSensVertical: 300
   m_CamSensHorizontal: 600

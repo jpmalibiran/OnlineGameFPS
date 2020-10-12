@@ -5,7 +5,7 @@ using UnityEngine;
 public class AmmoController : MonoBehaviour
 {
     public GameObject[] BulletIcons;
-    public GameObject SoundController;
+    //public GameObject SoundController;
     private int tempCount, MaxAmmo, CurrentAmmo, ReloadDelay, ReloadCount;
     private bool Reloading;
     // Start is called before the first frame update
@@ -62,7 +62,7 @@ public class AmmoController : MonoBehaviour
     {
         BulletIcons[CurrentAmmo].SetActive(false);
         CurrentAmmo--;
-        SoundController.SendMessage("PlayShootSound");
+        //SoundController.SendMessage("PlayShootSound");
     }
 
     public void StartReload()

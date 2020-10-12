@@ -29,7 +29,7 @@ namespace FPSCharController {
         [SerializeField] private FirstPersonController m_charCtrlRef;
         [SerializeField] private Transform m_charCamContainerRef; //TODO Hide in inspector
         [SerializeField] private Transform m_charBodyRef; //TODO Hide in inspector
-        [SerializeField] private Transform m_muzzleFlashRef;
+        [SerializeField] private Transform m_muzzleFlashUIRef;
         [SerializeField] private Transform m_charMainCamRef;
 
         [Header("Settings")]
@@ -107,6 +107,7 @@ namespace FPSCharController {
             foreach(KeyValuePair<KeyCode, InputEvent> entry in m_keybindings){
                 if (Input.GetKeyDown(entry.Key)) {
                     TriggerInputEvent(m_keybindings[entry.Key], true);
+                    if (bVerboseDebug) { Debug.Log("[Notice] Key pressed: " + entry.Key); }
                 }
             }
 
@@ -114,6 +115,7 @@ namespace FPSCharController {
             foreach(KeyValuePair<KeyCode, InputEvent> entry in m_keybindings){
                 if (Input.GetKeyUp(entry.Key)) {
                     TriggerInputEvent(m_keybindings[entry.Key], false);
+                    if (bVerboseDebug) { Debug.Log("[Notice] Key released: " + entry.Key); }
                 }
             }
         }
@@ -140,6 +142,9 @@ namespace FPSCharController {
             }
             else if (m_tempAngleHolderX > 180 && m_tempAngleHolderX < (360 - m_CamClampVertical)) {
                 m_tempAngleHolderX = (360 - m_CamClampVertical);
+            }
+            else if (m_tempAngleHolderX < -1) {
+                m_tempAngleHolderX = 0;
             }
 
             m_charCamContainerRef.localEulerAngles = new Vector3(m_tempAngleHolderX, m_charCamContainerRef.localEulerAngles.y, m_charCamContainerRef.localEulerAngles.z);
@@ -202,11 +207,10 @@ namespace FPSCharController {
                 case InputEvent.Shoot:
                     if (m_charCtrlRef) {
                         if (isPressed) {
-                            m_muzzleFlashRef.gameObject.SetActive(true);
-                            m_charCtrlRef.FireWeapon();
+                            StartCoroutine(Gunfire());
                         }
                         else if (!isPressed) {
-                            m_muzzleFlashRef.gameObject.SetActive(false);
+                            
                         }
                     }
                     break;
@@ -240,9 +244,22 @@ namespace FPSCharController {
             m_charCtrlRef.UpdateMoveVector(m_charMoveDir * m_MovementSpeed * Time.deltaTime);
         }
 
-        //Allows one to set custom keybindings
+        //Allows you to set custom keybindings
         public void SetKeybind(KeyCode getKey, InputEvent getEvent) {
             //TODO Incomplete
+        }
+
+        IEnumerator Gunfire() {
+            if (m_charCtrlRef) {
+                m_charCtrlRef.FireWeapon();
+            }
+            if (m_muzzleFlashUIRef) {
+                m_muzzleFlashUIRef.gameObject.SetActive(true);
+            }
+            yield return new WaitForSeconds(0.04f);
+            if (m_muzzleFlashUIRef) {
+                m_muzzleFlashUIRef.gameObject.SetActive(false);
+            }
         }
     }
 
