@@ -18,6 +18,7 @@ namespace FPSCharController {
 
         [Header("References")]
         [SerializeField] private AudioSource m_audioSrcRef;
+        [SerializeField] public AmmoController m_ammoCtrlRef; //TODO revert to private later
         [SerializeField] private Transform m_worldBodyRef;
         [SerializeField] private Transform m_localCamRef;
         [SerializeField] private Camera m_mainCamRef; //TODO hide in inspector and use this instead of Camera.main!
@@ -70,6 +71,10 @@ namespace FPSCharController {
             }
 
             mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition); 
+
+            if (m_ammoCtrlRef) {
+                m_ammoCtrlRef.Fired(); //Ticks down ammo count
+            }
 
             //int layerMask = 1 << 5;
             //layerMask = ~layerMask;

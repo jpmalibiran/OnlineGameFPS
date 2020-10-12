@@ -5176,6 +5176,10 @@ PrefabInstance:
       propertyPath: Profile
       value: 
       objectReference: {fileID: 1421956610}
+    - target: {fileID: 4868388611214989126, guid: 761f07c3e1839964e92543061c155aef, type: 3}
+      propertyPath: m_ammoCtrlRef
+      value: 
+      objectReference: {fileID: 675389838}
     - target: {fileID: 5490633037205598681, guid: 761f07c3e1839964e92543061c155aef, type: 3}
       propertyPath: m_LocalPosition.x
       value: -6.13
@@ -5293,5 +5297,9 @@ PrefabInstance:
       propertyPath: m_charBodyRef
       value: 
       objectReference: {fileID: 687700772}
+    - target: {fileID: 6402034801712177066, guid: a53f36e79d43ea84099cf73bdafee809, type: 3}
+      propertyPath: m_ammoCtrlRef
+      value: 
+      objectReference: {fileID: 675389838}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a53f36e79d43ea84099cf73bdafee809, type: 3}

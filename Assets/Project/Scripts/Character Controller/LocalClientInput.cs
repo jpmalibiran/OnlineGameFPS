@@ -27,6 +27,7 @@ namespace FPSCharController {
 
         [Header("References")]
         [SerializeField] private FirstPersonController m_charCtrlRef;
+        [SerializeField] private AmmoController m_ammoCtrlRef;
         [SerializeField] private Transform m_charCamContainerRef; //TODO Hide in inspector
         [SerializeField] private Transform m_charBodyRef; //TODO Hide in inspector
         [SerializeField] private Transform m_muzzleFlashUIRef;
@@ -56,6 +57,8 @@ namespace FPSCharController {
         private sbyte m_leftward = 0;
         private sbyte m_rightward = 0;
 
+        private bool bCanFire = true;
+
         private void Awake() {
             m_keybindings = new Dictionary<KeyCode, InputEvent>();
 
@@ -79,6 +82,11 @@ namespace FPSCharController {
                 m_charMainCamRef.SetParent(m_charCamContainerRef);
                 m_charMainCamRef.localPosition = Vector3.zero;
             }
+
+            if (m_charCtrlRef && m_ammoCtrlRef) {
+                m_charCtrlRef.m_ammoCtrlRef = this.m_ammoCtrlRef;
+            }
+
         }
 
         private void Update() {
@@ -205,9 +213,17 @@ namespace FPSCharController {
                     }
                     break;
                 case InputEvent.Shoot:
-                    if (m_charCtrlRef) {
+                    if (m_charCtrlRef && bCanFire && m_ammoCtrlRef.GetAmmoAmount() > 0) {
                         if (isPressed) {
-                            StartCoroutine(Gunfire());
+                            if (m_ammoCtrlRef) {
+                                if (m_ammoCtrlRef.GetAmmoAmount() > 0) {
+                                    StartCoroutine(Gunfire());
+                                }
+                                //Doesn't fire without ammo
+                            }
+                            else { //Fires anyway if m_ammoCtrlRef missing
+                                StartCoroutine(Gunfire());
+                            }
                         }
                         else if (!isPressed) {
                             
@@ -250,13 +266,18 @@ namespace FPSCharController {
         }
 
         IEnumerator Gunfire() {
+
+            bCanFire = false;
             if (m_charCtrlRef) {
                 m_charCtrlRef.FireWeapon();
             }
             if (m_muzzleFlashUIRef) {
                 m_muzzleFlashUIRef.gameObject.SetActive(true);
             }
+
             yield return new WaitForSeconds(0.04f);
+
+            bCanFire = true;
             if (m_muzzleFlashUIRef) {
                 m_muzzleFlashUIRef.gameObject.SetActive(false);
             }
