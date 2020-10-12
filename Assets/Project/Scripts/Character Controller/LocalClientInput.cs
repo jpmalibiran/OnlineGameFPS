@@ -185,7 +185,14 @@ namespace FPSCharController {
                     }
                     break;
                 case InputEvent.Shoot:
-
+                    if (m_charCtrlRef) {
+                        if (isPressed) {
+                            m_charCtrlRef.FireWeapon();
+                        }
+                        else if (!isPressed) {
+                            
+                        }
+                    }
                     break;
                 default:
                     break;
