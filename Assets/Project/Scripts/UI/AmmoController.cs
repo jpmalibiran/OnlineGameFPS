@@ -29,7 +29,7 @@ public class AmmoController : MonoBehaviour
             tempCount++;
             if(tempCount > 180)
             {
-                if(CurrentAmmo == -1)
+                if(CurrentAmmo <= 0)
                 {
                     StartReload();
                     return;

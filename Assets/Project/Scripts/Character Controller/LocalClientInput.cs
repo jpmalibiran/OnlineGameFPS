@@ -37,7 +37,8 @@ namespace FPSCharController {
         [SerializeField] private float m_CamSensVertical = 300;
         [SerializeField] private float m_CamSensHorizontal = 600;
         [SerializeField] private float m_CamClampVertical = 60;
-        [SerializeField] private float m_MovementSpeed = 20;
+        [SerializeField] private float m_MovementSpeed = 10;
+        [SerializeField] private float m_JumpForce = 1;
         [SerializeField] private bool bUseDefaultKeybind = true;
         [SerializeField] private bool bUseFPSMouseCtrl = true;
         [SerializeField] private bool bUseFourDirectionalMovement = true;
@@ -106,6 +107,8 @@ namespace FPSCharController {
             m_keybindings.Add(KeyCode.A, InputEvent.Leftward);
             m_keybindings.Add(KeyCode.S, InputEvent.Backward);
             m_keybindings.Add(KeyCode.D, InputEvent.Rightward);
+            m_keybindings.Add(KeyCode.R, InputEvent.Reload);
+            m_keybindings.Add(KeyCode.Space, InputEvent.Jump);
             m_keybindings.Add(KeyCode.Mouse0, InputEvent.Shoot);
         }
 
@@ -213,8 +216,8 @@ namespace FPSCharController {
                     }
                     break;
                 case InputEvent.Shoot:
-                    if (m_charCtrlRef && bCanFire && m_ammoCtrlRef.GetAmmoAmount() > 0) {
-                        if (isPressed) {
+                    if (isPressed) {
+                        if (m_charCtrlRef && bCanFire) {
                             if (m_ammoCtrlRef) {
                                 if (m_ammoCtrlRef.GetAmmoAmount() > 0) {
                                     StartCoroutine(Gunfire());
@@ -225,9 +228,27 @@ namespace FPSCharController {
                                 StartCoroutine(Gunfire());
                             }
                         }
-                        else if (!isPressed) {
+                    }
+                    else if (!isPressed) {
                             
+                    }
+                    break;
+                case InputEvent.Reload:
+                    if (isPressed) {
+
+                    }
+                    else if (!isPressed) {
+
+                    }
+                    break;
+                case InputEvent.Jump:
+                    if (isPressed) {
+                        if (m_charCtrlRef){
+                            m_charCtrlRef.CommenceJump(m_JumpForce);
                         }
+                    }
+                    else if (!isPressed) {
+                            
                     }
                     break;
                 default:
@@ -253,7 +274,7 @@ namespace FPSCharController {
 
         private void UpdateCharMovement() {
             if (!m_charCtrlRef) {
-                Debug.LogError("[Error] Mising reference to m_charCtrlRef! Aborting oepration...");
+                Debug.LogError("[Error] Missing reference to m_charCtrlRef! Aborting oepration...");
                 return;
             }
 

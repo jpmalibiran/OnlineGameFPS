@@ -30,6 +30,7 @@ namespace FPSCharController {
         private Ray ray;
 
         private bool bAllowMoveUpdate = false;
+        private bool bGrounded = true;
 
         private void Start() {
 
@@ -113,9 +114,29 @@ namespace FPSCharController {
             m_localCamRef.localEulerAngles = getLocalCamRotation;
         }
 
+        //TODO do a proper grounded check
+        public bool IsGrounded() {
+            return bGrounded;
+        }
+
+        public void CommenceJump(float getForce) {
+            if (!bGrounded) {
+                return;
+            }
+            bGrounded = false;
+            StartCoroutine(JumpRoutine(getForce));
+        }
+
         IEnumerator DelayMoveUpdate() {
-            yield return new WaitForSeconds(0.4f);
+            yield return new WaitForSeconds(0.6f);
             bAllowMoveUpdate = true;
+        }
+
+        IEnumerator JumpRoutine(float getForce) {
+            Debug.Log("Here");
+            m_rbRef.AddForce(Vector3.up * getForce, ForceMode.Impulse);
+            yield return new WaitForSeconds(0.6f);
+            bGrounded = true;
         }
     }
 }
