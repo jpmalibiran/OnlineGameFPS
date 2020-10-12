@@ -17,10 +17,12 @@ namespace FPSCharController {
         [SerializeField] private Transform m_localCamRef;
 
         private Rigidbody m_rbRef;
-        private Vector3 m_moveDirection;
-
+        private Vector3 m_moveDirection = Vector3.zero;
+        private Vector3 m_PrevMoveDirection = Vector3.zero;
         private RaycastHit hit;
         private Ray ray;
+
+        private bool bAllowMoveUpdate = false;
 
         private void Start() {
 
@@ -30,6 +32,8 @@ namespace FPSCharController {
             if (!m_rbRef) {
                 this.gameObject.AddComponent<Rigidbody>();
             }
+
+            StartCoroutine(DelayMoveUpdate());
         }
 
         private void Update() {
@@ -37,8 +41,18 @@ namespace FPSCharController {
         }
 
         private void MoveUpdate() {
-            
+            if (!bAllowMoveUpdate) {
+                return;
+            }
+
+            //Not a new movement vector direction, therefore no need to update
+            if (m_PrevMoveDirection == m_moveDirection) {
+                return;
+            }
+
+            m_PrevMoveDirection = m_moveDirection;
             m_rbRef.MovePosition(m_moveDirection);
+            
         }
 
         public void FireWeapon() {
@@ -61,6 +75,11 @@ namespace FPSCharController {
         public void UpdateMoveVector(Vector3 getVector) {
 
             m_moveDirection = this.transform.TransformPoint(getVector);
+        }
+
+        IEnumerator DelayMoveUpdate() {
+            yield return new WaitForSeconds(0.4f);
+            bAllowMoveUpdate = true;
         }
     }
 }

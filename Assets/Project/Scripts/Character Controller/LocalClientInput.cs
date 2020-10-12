@@ -27,8 +27,10 @@ namespace FPSCharController {
 
         [Header("References")]
         [SerializeField] private FirstPersonController m_charCtrlRef;
-        [SerializeField] private Transform m_charCameraRef;
-        [SerializeField] private Transform m_charBodyRef;
+        [SerializeField] private Transform m_charCamContainerRef; //TODO Hide in inspector
+        [SerializeField] private Transform m_charBodyRef; //TODO Hide in inspector
+        [SerializeField] private Transform m_muzzleFlashRef;
+        [SerializeField] private Transform m_charMainCamRef;
 
         [Header("Settings")]
         [SerializeField] private float m_CamSensVertical = 300;
@@ -56,6 +58,14 @@ namespace FPSCharController {
 
         private void Awake() {
             m_keybindings = new Dictionary<KeyCode, InputEvent>();
+
+            if (!m_charBodyRef && m_charCtrlRef) {
+                m_charBodyRef = m_charCtrlRef.transform;
+            }
+
+            if (!m_charCamContainerRef && m_charCtrlRef) {
+                m_charCamContainerRef = m_charCtrlRef.transform.GetChild(0);
+            }
         }
 
         private void Start() {
@@ -63,6 +73,11 @@ namespace FPSCharController {
 
             if (bLockCursorToCenter) {
                 Cursor.lockState = CursorLockMode.Locked;
+            }
+
+            if (m_charMainCamRef && m_charCamContainerRef) {
+                m_charMainCamRef.SetParent(m_charCamContainerRef);
+                m_charMainCamRef.localPosition = Vector3.zero;
             }
         }
 
@@ -108,7 +123,7 @@ namespace FPSCharController {
             if (!bUseFPSMouseCtrl) {
                 return;
             }
-            if (!m_charCameraRef) {
+            if (!m_charCamContainerRef) {
                 Debug.LogError("[Error] Missing reference to m_charCameraRef! Aborting operation...");
                 return;
             }
@@ -116,7 +131,7 @@ namespace FPSCharController {
             m_mouseInputX = Input.GetAxis("Mouse X");
             m_mouseInputY = Input.GetAxis("Mouse Y");
 
-            m_tempAngleHolderX = m_charCameraRef.localEulerAngles.x - (m_mouseInputY * m_CamSensVertical * Time.deltaTime);
+            m_tempAngleHolderX = m_charCamContainerRef.localEulerAngles.x - (m_mouseInputY * m_CamSensVertical * Time.deltaTime);
 
             //Custom clamp because Mathf.Clamp() is fucking things up. 
             //This is because when using euler angles, degrees below zero can be represented as a value subracted from 360. Thus, When the euler angle goes below zero it also exceeds the maximum clamp. 
@@ -127,12 +142,12 @@ namespace FPSCharController {
                 m_tempAngleHolderX = (360 - m_CamClampVertical);
             }
 
-            m_charCameraRef.localEulerAngles = new Vector3(m_tempAngleHolderX, m_charCameraRef.localEulerAngles.y, m_charCameraRef.localEulerAngles.z);
+            m_charCamContainerRef.localEulerAngles = new Vector3(m_tempAngleHolderX, m_charCamContainerRef.localEulerAngles.y, m_charCamContainerRef.localEulerAngles.z);
             m_tempAngleHolderY = m_charBodyRef.eulerAngles.y + (m_mouseInputX * m_CamSensHorizontal * Time.deltaTime);
             m_charBodyRef.eulerAngles = new Vector3(m_charBodyRef.eulerAngles.x, m_tempAngleHolderY, m_charBodyRef.eulerAngles.z);
 
             if (bDebug) {
-                m_charViewAngleDebug.x = m_charCameraRef.localEulerAngles.x;
+                m_charViewAngleDebug.x = m_charCamContainerRef.localEulerAngles.x;
                 m_charViewAngleDebug.y = m_charBodyRef.eulerAngles.y;
                 m_charViewAngleDebug.z = 0;
                 m_mouseInputXDebug = m_mouseInputX;
@@ -187,10 +202,11 @@ namespace FPSCharController {
                 case InputEvent.Shoot:
                     if (m_charCtrlRef) {
                         if (isPressed) {
+                            m_muzzleFlashRef.gameObject.SetActive(true);
                             m_charCtrlRef.FireWeapon();
                         }
                         else if (!isPressed) {
-                            
+                            m_muzzleFlashRef.gameObject.SetActive(false);
                         }
                     }
                     break;
