@@ -302,8 +302,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.00012207031, y: 82.799805}
-  m_SizeDelta: {x: -793.14, y: -545.62}
+  m_AnchoredPosition: {x: 104.13504, y: 88}
+  m_SizeDelta: {x: -584.8701, y: -425.41025}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &92325747
 MonoBehaviour:
@@ -1217,7 +1217,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 332, y: -259}
+  m_AnchoredPosition: {x: 267, y: -193}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &636232136
@@ -1389,7 +1389,7 @@ MonoBehaviour:
   autoPlay: 1
   useTargetAsV3: 0
   endValueFloat: 0
-  endValueV3: {x: 0, y: -844.7, z: 0}
+  endValueV3: {x: 0, y: -842.68, z: 0}
   endValueV2: {x: 0, y: 0}
   endValueColor: {r: 1, g: 1, b: 1, a: 1}
   endValueString: 
@@ -1794,7 +1794,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -341, y: -262}
+  m_AnchoredPosition: {x: -269, y: -194}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &943514515
@@ -2043,7 +2043,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 800, y: 600}
@@ -2654,8 +2654,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 32.47
-  m_fontSizeBase: 32.47
+  m_fontSize: 27.61
+  m_fontSizeBase: 27.61
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2720,7 +2720,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.000097913, y: 82.8}
+  m_AnchoredPosition: {x: 0.000097913, y: 75}
   m_SizeDelta: {x: 1042.21, y: 32.38}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1703610347
@@ -2863,6 +2863,7 @@ MonoBehaviour:
   HeadingText: {fileID: 1703610342}
   FadeoutPaneltoGame: {fileID: 1042730978}
   FadeoutPaneltoMain: {fileID: 503790092}
+  MusicObject: {fileID: 0}
   FindingMatch: 0
 --- !u!4 &2000172934
 Transform:
