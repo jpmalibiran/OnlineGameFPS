@@ -277,7 +277,7 @@ MonoBehaviour:
   targetIsSelf: 1
   targetGO: {fileID: 0}
   tweenTargetIsTargetGO: 1
-  delay: 2.25
+  delay: 0.25
   duration: 1
   easeType: 6
   easeCurve:
@@ -3032,7 +3032,7 @@ MonoBehaviour:
   targetIsSelf: 1
   targetGO: {fileID: 0}
   tweenTargetIsTargetGO: 1
-  delay: 2.25
+  delay: 0.25
   duration: 1
   easeType: 6
   easeCurve:
@@ -3401,7 +3401,7 @@ MonoBehaviour:
   targetIsSelf: 1
   targetGO: {fileID: 0}
   tweenTargetIsTargetGO: 1
-  delay: 2.25
+  delay: 0.5
   duration: 1
   easeType: 6
   easeCurve:
@@ -3813,7 +3813,7 @@ MonoBehaviour:
   targetIsSelf: 1
   targetGO: {fileID: 0}
   tweenTargetIsTargetGO: 1
-  delay: 2.25
+  delay: 0.75
   duration: 1
   easeType: 6
   easeCurve:
@@ -4965,7 +4965,7 @@ MonoBehaviour:
   targetIsSelf: 1
   targetGO: {fileID: 0}
   tweenTargetIsTargetGO: 1
-  delay: 2.75
+  delay: 1
   duration: 1
   easeType: 6
   easeCurve:
@@ -5431,7 +5431,7 @@ MonoBehaviour:
   targetIsSelf: 1
   targetGO: {fileID: 0}
   tweenTargetIsTargetGO: 1
-  delay: 2.25
+  delay: 0.5
   duration: 1
   easeType: 6
   easeCurve:
@@ -7233,7 +7233,7 @@ MonoBehaviour:
   targetIsSelf: 1
   targetGO: {fileID: 0}
   tweenTargetIsTargetGO: 1
-  delay: 2.75
+  delay: 1
   duration: 1
   easeType: 6
   easeCurve:
@@ -7313,7 +7313,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Enter Login Info
+  m_text: Enter Registration
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3229d9b74c6a4ef469f6abb6dc8b4f78, type: 2}
   m_sharedMaterial: {fileID: 2902127309131426909, guid: 3229d9b74c6a4ef469f6abb6dc8b4f78, type: 2}
@@ -8144,7 +8144,7 @@ MonoBehaviour:
   targetIsSelf: 1
   targetGO: {fileID: 0}
   tweenTargetIsTargetGO: 1
-  delay: 2.25
+  delay: 0.75
   duration: 1
   easeType: 6
   easeCurve:
@@ -8420,7 +8420,7 @@ MonoBehaviour:
   targetIsSelf: 1
   targetGO: {fileID: 0}
   tweenTargetIsTargetGO: 1
-  delay: 2.25
+  delay: 0
   duration: 1
   easeType: 6
   easeCurve:
@@ -9050,7 +9050,7 @@ MonoBehaviour:
   targetIsSelf: 1
   targetGO: {fileID: 0}
   tweenTargetIsTargetGO: 1
-  delay: 2.25
+  delay: 0
   duration: 1
   easeType: 6
   easeCurve:
