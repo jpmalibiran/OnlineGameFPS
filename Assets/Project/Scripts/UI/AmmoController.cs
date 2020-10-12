@@ -5,14 +5,14 @@ using UnityEngine;
 public class AmmoController : MonoBehaviour
 {
     public GameObject[] BulletIcons;
-    public GameObject SoundController;
+    //public GameObject SoundController; //Note: The audio source component is now at the Player prefab
     private int tempCount, MaxAmmo, CurrentAmmo, ReloadDelay, ReloadCount;
     private bool Reloading;
     // Start is called before the first frame update
     void Start()
     {
-        MaxAmmo = 7;
-        CurrentAmmo = 7;
+        MaxAmmo = 8;
+        CurrentAmmo = 8;
         ReloadDelay = 1600;
     }
 
@@ -29,12 +29,12 @@ public class AmmoController : MonoBehaviour
             tempCount++;
             if(tempCount > 180)
             {
-                if(CurrentAmmo == -1)
+                if(CurrentAmmo <= 0)
                 {
                     StartReload();
                     return;
                 }
-                    Fired();
+                    //Fired(); //Note: This is now executed in FirstPersonController.cs when the player shoots
                     tempCount = 0;
             }
 
@@ -51,7 +51,7 @@ public class AmmoController : MonoBehaviour
                 }
                 Reloading = false;
                 ReloadCount = 0;
-                CurrentAmmo = 7;
+                CurrentAmmo = 8;
                 tempCount = 0;
             }
         }
@@ -60,13 +60,18 @@ public class AmmoController : MonoBehaviour
 
     public void Fired()
     {
-        BulletIcons[CurrentAmmo].SetActive(false);
+        BulletIcons[CurrentAmmo-1].SetActive(false);
         CurrentAmmo--;
-        SoundController.SendMessage("PlayShootSound");
+        //SoundController.SendMessage("PlayShootSound"); //Note: The audio source component is now at the Player prefab
     }
 
     public void StartReload()
     {
         Reloading = true;
+    }
+
+    //Used to check if there are any ammo left. A Player shouldn't be able to fire without ammo.
+    public int GetAmmoAmount() {
+        return CurrentAmmo;
     }
 }

@@ -1,11 +1,10 @@
 ﻿/*
  * Author: Joseph Malibiran
- * Last Updated: October 8, 2020
+ * Last Updated: October 11, 2020
  */
 
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace FPSNetworkCode {
 

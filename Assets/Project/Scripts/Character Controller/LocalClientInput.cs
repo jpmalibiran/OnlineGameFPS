@@ -27,14 +27,18 @@ namespace FPSCharController {
 
         [Header("References")]
         [SerializeField] private FirstPersonController m_charCtrlRef;
-        [SerializeField] private Transform m_charCameraRef;
-        [SerializeField] private Transform m_charBodyRef;
+        [SerializeField] private AmmoController m_ammoCtrlRef;
+        [SerializeField] private Transform m_charCamContainerRef; //TODO Hide in inspector
+        [SerializeField] private Transform m_charBodyRef; //TODO Hide in inspector
+        [SerializeField] private Transform m_muzzleFlashUIRef;
+        [SerializeField] private Transform m_charMainCamRef;
 
         [Header("Settings")]
         [SerializeField] private float m_CamSensVertical = 300;
         [SerializeField] private float m_CamSensHorizontal = 600;
         [SerializeField] private float m_CamClampVertical = 60;
-        [SerializeField] private float m_MovementSpeed = 20;
+        [SerializeField] private float m_MovementSpeed = 10;
+        [SerializeField] private float m_JumpForce = 1;
         [SerializeField] private bool bUseDefaultKeybind = true;
         [SerializeField] private bool bUseFPSMouseCtrl = true;
         [SerializeField] private bool bUseFourDirectionalMovement = true;
@@ -54,8 +58,18 @@ namespace FPSCharController {
         private sbyte m_leftward = 0;
         private sbyte m_rightward = 0;
 
+        private bool bCanFire = true;
+
         private void Awake() {
             m_keybindings = new Dictionary<KeyCode, InputEvent>();
+
+            if (!m_charBodyRef && m_charCtrlRef) {
+                m_charBodyRef = m_charCtrlRef.transform;
+            }
+
+            if (!m_charCamContainerRef && m_charCtrlRef) {
+                m_charCamContainerRef = m_charCtrlRef.transform.GetChild(0);
+            }
         }
 
         private void Start() {
@@ -64,6 +78,16 @@ namespace FPSCharController {
             if (bLockCursorToCenter) {
                 Cursor.lockState = CursorLockMode.Locked;
             }
+
+            if (m_charMainCamRef && m_charCamContainerRef) {
+                m_charMainCamRef.SetParent(m_charCamContainerRef);
+                m_charMainCamRef.localPosition = Vector3.zero;
+            }
+
+            if (m_charCtrlRef && m_ammoCtrlRef) {
+                m_charCtrlRef.m_ammoCtrlRef = this.m_ammoCtrlRef;
+            }
+
         }
 
         private void Update() {
@@ -83,6 +107,8 @@ namespace FPSCharController {
             m_keybindings.Add(KeyCode.A, InputEvent.Leftward);
             m_keybindings.Add(KeyCode.S, InputEvent.Backward);
             m_keybindings.Add(KeyCode.D, InputEvent.Rightward);
+            m_keybindings.Add(KeyCode.R, InputEvent.Reload);
+            m_keybindings.Add(KeyCode.Space, InputEvent.Jump);
             m_keybindings.Add(KeyCode.Mouse0, InputEvent.Shoot);
         }
 
@@ -92,6 +118,7 @@ namespace FPSCharController {
             foreach(KeyValuePair<KeyCode, InputEvent> entry in m_keybindings){
                 if (Input.GetKeyDown(entry.Key)) {
                     TriggerInputEvent(m_keybindings[entry.Key], true);
+                    if (bVerboseDebug) { Debug.Log("[Notice] Key pressed: " + entry.Key); }
                 }
             }
 
@@ -99,6 +126,7 @@ namespace FPSCharController {
             foreach(KeyValuePair<KeyCode, InputEvent> entry in m_keybindings){
                 if (Input.GetKeyUp(entry.Key)) {
                     TriggerInputEvent(m_keybindings[entry.Key], false);
+                    if (bVerboseDebug) { Debug.Log("[Notice] Key released: " + entry.Key); }
                 }
             }
         }
@@ -108,7 +136,7 @@ namespace FPSCharController {
             if (!bUseFPSMouseCtrl) {
                 return;
             }
-            if (!m_charCameraRef) {
+            if (!m_charCamContainerRef) {
                 Debug.LogError("[Error] Missing reference to m_charCameraRef! Aborting operation...");
                 return;
             }
@@ -116,7 +144,7 @@ namespace FPSCharController {
             m_mouseInputX = Input.GetAxis("Mouse X");
             m_mouseInputY = Input.GetAxis("Mouse Y");
 
-            m_tempAngleHolderX = m_charCameraRef.localEulerAngles.x - (m_mouseInputY * m_CamSensVertical * Time.deltaTime);
+            m_tempAngleHolderX = m_charCamContainerRef.localEulerAngles.x - (m_mouseInputY * m_CamSensVertical * Time.deltaTime);
 
             //Custom clamp because Mathf.Clamp() is fucking things up. 
             //This is because when using euler angles, degrees below zero can be represented as a value subracted from 360. Thus, When the euler angle goes below zero it also exceeds the maximum clamp. 
@@ -126,13 +154,16 @@ namespace FPSCharController {
             else if (m_tempAngleHolderX > 180 && m_tempAngleHolderX < (360 - m_CamClampVertical)) {
                 m_tempAngleHolderX = (360 - m_CamClampVertical);
             }
+            else if (m_tempAngleHolderX < -1) {
+                m_tempAngleHolderX = 0;
+            }
 
-            m_charCameraRef.localEulerAngles = new Vector3(m_tempAngleHolderX, m_charCameraRef.localEulerAngles.y, m_charCameraRef.localEulerAngles.z);
+            m_charCamContainerRef.localEulerAngles = new Vector3(m_tempAngleHolderX, m_charCamContainerRef.localEulerAngles.y, m_charCamContainerRef.localEulerAngles.z);
             m_tempAngleHolderY = m_charBodyRef.eulerAngles.y + (m_mouseInputX * m_CamSensHorizontal * Time.deltaTime);
             m_charBodyRef.eulerAngles = new Vector3(m_charBodyRef.eulerAngles.x, m_tempAngleHolderY, m_charBodyRef.eulerAngles.z);
 
             if (bDebug) {
-                m_charViewAngleDebug.x = m_charCameraRef.localEulerAngles.x;
+                m_charViewAngleDebug.x = m_charCamContainerRef.localEulerAngles.x;
                 m_charViewAngleDebug.y = m_charBodyRef.eulerAngles.y;
                 m_charViewAngleDebug.z = 0;
                 m_mouseInputXDebug = m_mouseInputX;
@@ -185,7 +216,40 @@ namespace FPSCharController {
                     }
                     break;
                 case InputEvent.Shoot:
+                    if (isPressed) {
+                        if (m_charCtrlRef && bCanFire) {
+                            if (m_ammoCtrlRef) {
+                                if (m_ammoCtrlRef.GetAmmoAmount() > 0) {
+                                    StartCoroutine(Gunfire());
+                                }
+                                //Doesn't fire without ammo
+                            }
+                            else { //Fires anyway if m_ammoCtrlRef missing
+                                StartCoroutine(Gunfire());
+                            }
+                        }
+                    }
+                    else if (!isPressed) {
+                            
+                    }
+                    break;
+                case InputEvent.Reload:
+                    if (isPressed) {
 
+                    }
+                    else if (!isPressed) {
+
+                    }
+                    break;
+                case InputEvent.Jump:
+                    if (isPressed) {
+                        if (m_charCtrlRef){
+                            m_charCtrlRef.CommenceJump(m_JumpForce);
+                        }
+                    }
+                    else if (!isPressed) {
+                            
+                    }
                     break;
                 default:
                     break;
@@ -210,16 +274,34 @@ namespace FPSCharController {
 
         private void UpdateCharMovement() {
             if (!m_charCtrlRef) {
-                Debug.LogError("[Error] Mising reference to m_charCtrlRef! Aborting oepration...");
+                Debug.LogError("[Error] Missing reference to m_charCtrlRef! Aborting oepration...");
                 return;
             }
 
             m_charCtrlRef.UpdateMoveVector(m_charMoveDir * m_MovementSpeed * Time.deltaTime);
         }
 
-        //Allows one to set custom keybindings
+        //Allows you to set custom keybindings
         public void SetKeybind(KeyCode getKey, InputEvent getEvent) {
             //TODO Incomplete
+        }
+
+        IEnumerator Gunfire() {
+
+            bCanFire = false;
+            if (m_charCtrlRef) {
+                m_charCtrlRef.FireWeapon();
+            }
+            if (m_muzzleFlashUIRef) {
+                m_muzzleFlashUIRef.gameObject.SetActive(true);
+            }
+
+            yield return new WaitForSeconds(0.04f);
+
+            bCanFire = true;
+            if (m_muzzleFlashUIRef) {
+                m_muzzleFlashUIRef.gameObject.SetActive(false);
+            }
         }
     }
 
