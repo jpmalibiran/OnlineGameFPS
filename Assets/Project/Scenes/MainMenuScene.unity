@@ -6090,7 +6090,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Game Title
+  m_text: Capsule Carnage
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3229d9b74c6a4ef469f6abb6dc8b4f78, type: 2}
   m_sharedMaterial: {fileID: 2902127309131426909, guid: 3229d9b74c6a4ef469f6abb6dc8b4f78, type: 2}
@@ -6117,8 +6117,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 81.5
-  m_fontSizeBase: 81.5
+  m_fontSize: 54.9
+  m_fontSizeBase: 54.9
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

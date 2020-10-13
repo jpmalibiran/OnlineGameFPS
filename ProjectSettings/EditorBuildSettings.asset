@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Project/Scenes/ProfileScene.unity
     guid: ded3648f3d00b004cb6b0a8ca9bbaec6
+  - enabled: 1
+    path: Assets/Project/Scenes/EndMatchScene.unity
+    guid: f74c4d5fc3a6cf348a3fad99376d503b
   m_configObjects: {}

@@ -13,7 +13,7 @@ public class AmmoController : MonoBehaviour
     {
         MaxAmmo = 8;
         CurrentAmmo = 8;
-        ReloadDelay = 1600;
+        ReloadDelay = 800;
     }
 
     // Update is called once per frame

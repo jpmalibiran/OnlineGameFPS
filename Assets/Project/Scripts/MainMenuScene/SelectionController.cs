@@ -66,7 +66,7 @@ public class SelectionController : MonoBehaviour
     public void MoveToGame()
     {
         SceneManager.LoadScene(3);
-        MusicObject.SetActive(false);
+        Destroy(MusicObject);
     }
     
     public void MoveToProfile()

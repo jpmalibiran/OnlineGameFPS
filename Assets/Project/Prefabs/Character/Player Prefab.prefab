@@ -127,6 +127,7 @@ GameObject:
   - component: {fileID: 8571704078764472714}
   - component: {fileID: 4868388611214989126}
   - component: {fileID: 1354566614}
+  - component: {fileID: 5632180871746493397}
   - component: {fileID: 2939528169218578338}
   m_Layer: 0
   m_Name: Player Prefab
@@ -177,7 +178,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 7c9191cd04694894ba8cbe92c89050d6, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -261,6 +262,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Profile: {fileID: 0}
+--- !u!114 &5632180871746493397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8891877752985727898}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 015b03ef2138b06478e1d9fef7077f84, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MatchController: {fileID: 0}
+  HealthPointsMax: 0
+  HealthPoints: 0
 --- !u!82 &2939528169218578338
 AudioSource:
   m_ObjectHideFlags: 0

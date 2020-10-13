@@ -87,6 +87,7 @@ namespace FPSCharController {
                 if (hit.transform.tag == "Player") {
                     if (bVerboseDebug) { Debug.Log("[Notice] Player hit!"); }
                     newHitData = new HitData(true, 0, 0, 1, hit.distance);
+                    hit.transform.gameObject.SendMessage("GotHit", 20);
                 }
                 else {
                     if (bVerboseDebug) { Debug.Log("[Notice] Object hit!"); }
