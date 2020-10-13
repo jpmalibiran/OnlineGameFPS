@@ -80,7 +80,6 @@ namespace FPSCharController {
             //int layerMask = 1 << 5;
             //layerMask = ~layerMask;
 
-            //if (Physics.Raycast(mousePosition, transform.TransformDirection(Vector3.forward), out hit, Mathf.Infinity)){
             if (Physics.Raycast(mousePosition, Camera.main.transform.TransformDirection(Vector3.forward), out hit)){
                 //Debug.DrawRay(mousePosition, Camera.main.transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
                 
@@ -113,6 +112,7 @@ namespace FPSCharController {
         public void UpdateFPSView(Vector3 getWorldBodyRotation, Vector3 getLocalCamRotation) {
             m_worldBodyRef.eulerAngles = getWorldBodyRotation;
             m_localCamRef.localEulerAngles = getLocalCamRotation;
+            
         }
 
         //TODO do a proper grounded check

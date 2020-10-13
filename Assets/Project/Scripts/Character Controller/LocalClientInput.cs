@@ -150,6 +150,8 @@ namespace FPSCharController {
             m_mouseInputX = Input.GetAxis("Mouse X");
             m_mouseInputY = Input.GetAxis("Mouse Y");
 
+            
+
             m_tempAngleHolderX = m_charCamContainerRef.localEulerAngles.x - (m_mouseInputY * m_CamSensVertical * Time.deltaTime);
 
             //Custom clamp because Mathf.Clamp() is fucking things up. 
@@ -163,8 +165,8 @@ namespace FPSCharController {
             else if (m_tempAngleHolderX < -1) {
                 m_tempAngleHolderX = 0;
             }
-
             m_charCamContainerRef.localEulerAngles = new Vector3(m_tempAngleHolderX, m_charCamContainerRef.localEulerAngles.y, m_charCamContainerRef.localEulerAngles.z);
+
             m_tempAngleHolderY = m_charBodyRef.eulerAngles.y + (m_mouseInputX * m_CamSensHorizontal * Time.deltaTime);
             m_charBodyRef.eulerAngles = new Vector3(m_charBodyRef.eulerAngles.x, m_tempAngleHolderY, m_charBodyRef.eulerAngles.z);
 
@@ -316,11 +318,14 @@ namespace FPSCharController {
 
             yield return new WaitForSeconds(0.04f);
 
-            bCanFire = true;
             if (m_muzzleFlashUIRef) {
                 m_muzzleFlashUIRef.gameObject.SetActive(false);
             }
+
+            yield return new WaitForSeconds(0.3f);
+            bCanFire = true;
         }
+
     }
 
 }
