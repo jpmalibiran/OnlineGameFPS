@@ -13,7 +13,18 @@ namespace FPSCharController {
     public class FirstPersonController : MonoBehaviour{
 
         private Rigidbody m_rbRef;
+<<<<<<< Updated upstream
         private Vector3 m_moveDirection;
+=======
+        private Vector3 m_moveDirection = Vector3.zero;
+        private Vector3 m_PrevMoveDirection = Vector3.zero;
+        private RaycastHit hit;
+        private Ray ray;
+
+        private bool bAllowMoveUpdate = false;
+        private bool bGrounded = true;
+       
+>>>>>>> Stashed changes
 
         private void Start() {
 
