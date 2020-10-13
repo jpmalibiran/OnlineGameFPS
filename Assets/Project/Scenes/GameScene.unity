@@ -5177,17 +5177,6 @@ PrefabInstance:
       propertyPath: Profile
       value: 
       objectReference: {fileID: 1421956610}
-<<<<<<< Updated upstream
-=======
-    - target: {fileID: 4868388611214989126, guid: 761f07c3e1839964e92543061c155aef, type: 3}
-      propertyPath: m_ammoCtrlRef
-      value: 
-      objectReference: {fileID: 675389838}
-    - target: {fileID: 4868388611214989126, guid: 761f07c3e1839964e92543061c155aef, type: 3}
-      propertyPath: speed
-      value: 5
-      objectReference: {fileID: 0}
->>>>>>> Stashed changes
     - target: {fileID: 5490633037205598681, guid: 761f07c3e1839964e92543061c155aef, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -5304,18 +5293,6 @@ PrefabInstance:
     - target: {fileID: 6402034801712177066, guid: a53f36e79d43ea84099cf73bdafee809, type: 3}
       propertyPath: m_charCameraRef
       value: 
-<<<<<<< Updated upstream
       objectReference: {fileID: 1449676821}
-=======
-      objectReference: {fileID: 675389838}
-    - target: {fileID: 6402034801712177066, guid: a53f36e79d43ea84099cf73bdafee809, type: 3}
-      propertyPath: m_JumpForce
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 6402034801712177066, guid: a53f36e79d43ea84099cf73bdafee809, type: 3}
-      propertyPath: m_MovementSpeed
-      value: 50
-      objectReference: {fileID: 0}
->>>>>>> Stashed changes
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a53f36e79d43ea84099cf73bdafee809, type: 3}
