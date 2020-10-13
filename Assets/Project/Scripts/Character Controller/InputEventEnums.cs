@@ -11,6 +11,7 @@ namespace FPSCharController {
         None,
         Forward, Leftward, Backward, Rightward,
         Shoot, AimSights, Reload, SwitchWeaponPrev, SwitchWeaponNext,
-        Sprint, Crouch, Prone, Jump
+        Sprint, Crouch, Prone, Jump,
+        Pause, Menu, Settings, Profile, Scoreboard, Latency
     };
 }

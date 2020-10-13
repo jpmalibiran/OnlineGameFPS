@@ -28,6 +28,7 @@ namespace FPSCharController {
         [Header("References")]
         [SerializeField] private FirstPersonController m_charCtrlRef;
         [SerializeField] private AmmoController m_ammoCtrlRef;
+        [SerializeField] private GameObject m_profileRef;
         [SerializeField] private Transform m_charCamContainerRef; //TODO Hide in inspector
         [SerializeField] private Transform m_charBodyRef; //TODO Hide in inspector
         [SerializeField] private Transform m_muzzleFlashUIRef;
@@ -88,6 +89,10 @@ namespace FPSCharController {
                 m_charCtrlRef.m_ammoCtrlRef = this.m_ammoCtrlRef;
             }
 
+            if (m_profileRef) {
+                m_profileRef.SetActive(false);
+            }
+
         }
 
         private void Update() {
@@ -108,6 +113,7 @@ namespace FPSCharController {
             m_keybindings.Add(KeyCode.S, InputEvent.Backward);
             m_keybindings.Add(KeyCode.D, InputEvent.Rightward);
             m_keybindings.Add(KeyCode.R, InputEvent.Reload);
+            m_keybindings.Add(KeyCode.Y, InputEvent.Profile);
             m_keybindings.Add(KeyCode.Space, InputEvent.Jump);
             m_keybindings.Add(KeyCode.Mouse0, InputEvent.Shoot);
         }
@@ -249,6 +255,18 @@ namespace FPSCharController {
                     }
                     else if (!isPressed) {
                             
+                    }
+                    break;
+                case InputEvent.Profile:
+                    if (isPressed) {
+                        if (m_profileRef) {
+                            m_profileRef.SetActive(true);
+                        }
+                    }
+                    else if (!isPressed) {
+                        if (m_profileRef) {
+                            m_profileRef.SetActive(false);
+                        }
                     }
                     break;
                 default:

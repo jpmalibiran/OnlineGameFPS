@@ -22,8 +22,15 @@ public class SelectionController : MonoBehaviour
         if(FindingMatch)
         {
             fakeMatchmakingCount++;
-            if (MusicObject.GetComponent<AudioSource>().volume > 0)
-                MusicObject.GetComponent<AudioSource>().volume -= 0.001f;
+
+            if (MusicObject) 
+            {
+                if (MusicObject.GetComponent<AudioSource>().volume > 0)
+                {
+                    MusicObject.GetComponent<AudioSource>().volume -= 0.001f;
+                }
+            }
+
             if(fakeMatchmakingCount > 1600)
             {
                 MatchmakingComplete();

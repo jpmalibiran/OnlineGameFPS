@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//(Oct 13, 2020) Note: This functionality is removed from the Player Prefab and moved to LocalClientInput.cs. Otherwise, the input is triggered for each Player Prefab in the scene.
 public class PlayerProfile : MonoBehaviour
 {
     public GameObject Profile;
