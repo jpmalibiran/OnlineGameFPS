@@ -292,11 +292,11 @@ namespace FPSCharController {
 
         private void UpdateCharMovement() {
             if (!m_charCtrlRef) {
-                Debug.LogError("[Error] Missing reference to m_charCtrlRef! Aborting oepration...");
+                Debug.LogError("[Error] Missing reference to m_charCtrlRef! Aborting operation...");
                 return;
             }
 
-            m_charCtrlRef.UpdateMoveVector(m_charMoveDir * m_MovementSpeed * Time.deltaTime);
+            m_charCtrlRef.UpdateMoveVector(m_charMoveDir.normalized * m_MovementSpeed * Time.deltaTime);
         }
 
         //Allows you to set custom keybindings
