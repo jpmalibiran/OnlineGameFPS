@@ -50,8 +50,8 @@ namespace FPSCharController {
 
         private Vector3 m_charMoveDir = Vector3.zero;
 
-        private float m_tempAngleHolderX = 0;
-        private float m_tempAngleHolderY = 0;
+        private float m_tempAngleHolderPitch = 0;
+        private float m_tempAngleHolderYaw = 0;
         private float m_mouseInputX;
         private float m_mouseInputY;
 
@@ -99,6 +99,9 @@ namespace FPSCharController {
         private void Update() {
             TrackMouseMovement();
             ListenOnUserInput();
+        }
+
+        private void FixedUpdate() {
             UpdateDirVector();
             UpdateCharMovement();
         }
@@ -151,33 +154,33 @@ namespace FPSCharController {
             m_mouseInputX = Input.GetAxis("Mouse X");
             m_mouseInputY = Input.GetAxis("Mouse Y");
 
-            
+            m_charCtrlRef.UpdateFPSView(m_mouseInputX * m_CamSensHorizontal, m_mouseInputY * m_CamSensVertical, m_CamClampVertical);
 
-            m_tempAngleHolderX = m_charCamContainerRef.localEulerAngles.x - (m_mouseInputY * m_CamSensVertical * Time.deltaTime);
+            //m_tempAngleHolderPitch = m_charCamContainerRef.localEulerAngles.x - (m_mouseInputY * m_CamSensVertical * Time.deltaTime);
 
-            //Custom clamp because Mathf.Clamp() is fucking things up. 
-            //This is because when using euler angles, degrees below zero can be represented as a value subracted from 360. Thus, When the euler angle goes below zero it also exceeds the maximum clamp. 
-            if (m_tempAngleHolderX > m_CamClampVertical && m_tempAngleHolderX <= 180) {
-                m_tempAngleHolderX = m_CamClampVertical;
-            }
-            else if (m_tempAngleHolderX > 180 && m_tempAngleHolderX < (360 - m_CamClampVertical)) {
-                m_tempAngleHolderX = (360 - m_CamClampVertical);
-            }
-            else if (m_tempAngleHolderX < -1) {
-                m_tempAngleHolderX = 0;
-            }
-            m_charCamContainerRef.localEulerAngles = new Vector3(m_tempAngleHolderX, m_charCamContainerRef.localEulerAngles.y, m_charCamContainerRef.localEulerAngles.z);
+            ////Custom clamp because Mathf.Clamp() is fucking things up. 
+            ////This is because when using euler angles, degrees below zero can be represented as a value subracted from 360. Thus, When the euler angle goes below zero it also exceeds the maximum clamp. 
+            //if (m_tempAngleHolderPitch > m_CamClampVertical && m_tempAngleHolderPitch <= 180) {
+            //    m_tempAngleHolderPitch = m_CamClampVertical;
+            //}
+            //else if (m_tempAngleHolderPitch > 180 && m_tempAngleHolderPitch < (360 - m_CamClampVertical)) {
+            //    m_tempAngleHolderPitch = (360 - m_CamClampVertical);
+            //}
+            //if (m_tempAngleHolderPitch < -1) {
+            //    m_tempAngleHolderPitch = 0;
+            //}
+            //m_charCamContainerRef.localEulerAngles = new Vector3(m_tempAngleHolderPitch, m_charCamContainerRef.localEulerAngles.y, m_charCamContainerRef.localEulerAngles.z);
 
-            m_tempAngleHolderY = m_charBodyRef.eulerAngles.y + (m_mouseInputX * m_CamSensHorizontal * Time.deltaTime);
-            m_charBodyRef.eulerAngles = new Vector3(m_charBodyRef.eulerAngles.x, m_tempAngleHolderY, m_charBodyRef.eulerAngles.z);
+            //m_tempAngleHolderYaw = m_charBodyRef.eulerAngles.y + (m_mouseInputX * m_CamSensHorizontal * Time.deltaTime);
+            //m_charBodyRef.eulerAngles = new Vector3(m_charBodyRef.eulerAngles.x, m_tempAngleHolderYaw, m_charBodyRef.eulerAngles.z);
 
-            if (bDebug) {
-                m_charViewAngleDebug.x = m_charCamContainerRef.localEulerAngles.x;
-                m_charViewAngleDebug.y = m_charBodyRef.eulerAngles.y;
-                m_charViewAngleDebug.z = 0;
-                m_mouseInputXDebug = m_mouseInputX;
-                m_mouseInputYDebug = m_mouseInputY;
-            }
+            //if (bDebug) {
+            //    m_charViewAngleDebug.x = m_charCamContainerRef.localEulerAngles.x;
+            //    m_charViewAngleDebug.y = m_charBodyRef.eulerAngles.y;
+            //    m_charViewAngleDebug.z = 0;
+            //    m_mouseInputXDebug = m_mouseInputX;
+            //    m_mouseInputYDebug = m_mouseInputY;
+            //}
 
         }
 

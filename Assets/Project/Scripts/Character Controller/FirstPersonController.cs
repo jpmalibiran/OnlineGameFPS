@@ -74,10 +74,32 @@ namespace FPSCharController {
         }
 
         //TODO move rotation calculation here from LocalClientInput
-        public void UpdateFPSView(Vector3 getWorldBodyRotation, Vector3 getLocalCamRotation) {
-            m_worldBodyRef.eulerAngles = getWorldBodyRotation;
-            m_localCamRef.localEulerAngles = getLocalCamRotation;
-            
+        public void UpdateFPSView(float getYaw, float getPitch, float getPitchClamp) {
+            float pitchCalc;
+            float yawCalc;
+
+            pitchCalc = m_localCamRef.localEulerAngles.x - (getPitch * Time.deltaTime);
+
+            //This is a custom clamp because Mathf.Clamp() is fucking things up. 
+            //The issue was: when using euler angles, degrees below zero can also be represented as a value subracted from 360. Thus, When the euler angle goes below zero it also exceeds the maximum clamp. 
+
+            //Calculate and apply pitch rotation (rotation upon the local x axis)
+            if (pitchCalc > getPitchClamp && pitchCalc <= 180) {
+                pitchCalc = getPitchClamp;
+            }
+            else if (pitchCalc > 180 && pitchCalc < (360 - getPitchClamp)) {
+                pitchCalc = (360 - getPitchClamp);
+            }
+            if (pitchCalc < -1) {
+                pitchCalc = 0;
+            }
+            m_localCamRef.localEulerAngles = new Vector3(pitchCalc, m_localCamRef.localEulerAngles.y, m_localCamRef.localEulerAngles.z);
+
+            yawCalc = m_worldBodyRef.eulerAngles.y + (getYaw * Time.deltaTime);
+            m_worldBodyRef.eulerAngles = new Vector3(m_worldBodyRef.eulerAngles.x, yawCalc, m_worldBodyRef.eulerAngles.z);
+
+            //m_worldBodyRef.eulerAngles = getWorldBodyRotation;
+            //m_localCamRef.localEulerAngles = getLocalCamRotation;
         }
 
         //TODO do a proper grounded check
