@@ -16,6 +16,9 @@ namespace FPSCharController {
         [SerializeField] private bool bDebug = true;
         [SerializeField] private bool bVerboseDebug = false;
 
+        [Header("Debug Read-Only")]
+        [SerializeField] private Vector3 m_showMoveDir;
+
         [Header("References")]
         [SerializeField] private AudioSource m_audioSrcRef;
         [SerializeField] public AmmoController m_ammoCtrlRef; //TODO revert to private later
@@ -44,7 +47,7 @@ namespace FPSCharController {
             StartCoroutine(DelayMoveUpdate());
         }
 
-        private void Update() {
+        private void FixedUpdate() {
             MoveUpdate();
         }
 
@@ -53,14 +56,41 @@ namespace FPSCharController {
                 return;
             }
 
-            //Not a new movement vector direction, therefore no need to update
-            if (m_PrevMoveDirection == m_moveDirection) {
+            ////Not a new movement vector direction, therefore no need to update
+            //if (m_PrevMoveDirection == m_moveDirection) {
+            //    return;
+            //}
+
+            //m_PrevMoveDirection = m_moveDirection;
+
+            m_rbRef.MovePosition(this.transform.position + m_moveDirection * Time.deltaTime);
+            
+        }
+
+        public void UpdateMoveVector(Vector3 getVector, float getSpeed) {
+
+            m_moveDirection = m_worldBodyRef.TransformDirection(getVector).normalized * getSpeed;
+            m_showMoveDir = m_moveDirection;
+        }
+
+        //TODO move rotation calculation here from LocalClientInput
+        public void UpdateFPSView(Vector3 getWorldBodyRotation, Vector3 getLocalCamRotation) {
+            m_worldBodyRef.eulerAngles = getWorldBodyRotation;
+            m_localCamRef.localEulerAngles = getLocalCamRotation;
+            
+        }
+
+        //TODO do a proper grounded check
+        public bool IsGrounded() {
+            return bGrounded;
+        }
+
+        public void CommenceJump(float getForce) {
+            if (!bGrounded) {
                 return;
             }
-
-            m_PrevMoveDirection = m_moveDirection;
-            m_rbRef.MovePosition(m_moveDirection);
-            
+            bGrounded = false;
+            StartCoroutine(JumpRoutine(getForce));
         }
 
         public HitData FireWeapon() {
@@ -103,38 +133,12 @@ namespace FPSCharController {
             return newHitData; //TODO make this useful
         }
 
-        public void UpdateMoveVector(Vector3 getVector) {
-
-            m_moveDirection = this.transform.TransformPoint(getVector);
-        }
-
-        //TODO move rotation calculation here from LocalClientInput
-        public void UpdateFPSView(Vector3 getWorldBodyRotation, Vector3 getLocalCamRotation) {
-            m_worldBodyRef.eulerAngles = getWorldBodyRotation;
-            m_localCamRef.localEulerAngles = getLocalCamRotation;
-            
-        }
-
-        //TODO do a proper grounded check
-        public bool IsGrounded() {
-            return bGrounded;
-        }
-
-        public void CommenceJump(float getForce) {
-            if (!bGrounded) {
-                return;
-            }
-            bGrounded = false;
-            StartCoroutine(JumpRoutine(getForce));
-        }
-
         IEnumerator DelayMoveUpdate() {
             yield return new WaitForSeconds(0.6f);
             bAllowMoveUpdate = true;
         }
 
         IEnumerator JumpRoutine(float getForce) {
-            Debug.Log("Here");
             m_rbRef.AddForce(Vector3.up * getForce, ForceMode.Impulse);
             yield return new WaitForSeconds(0.6f);
             bGrounded = true;

@@ -5996,6 +5996,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Local Input Manager
       objectReference: {fileID: 0}
+    - target: {fileID: 4402328926406689452, guid: a53f36e79d43ea84099cf73bdafee809, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 6402034801712177066, guid: a53f36e79d43ea84099cf73bdafee809, type: 3}
       propertyPath: m_charCtrlRef
       value: 
@@ -6018,7 +6022,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6402034801712177066, guid: a53f36e79d43ea84099cf73bdafee809, type: 3}
       propertyPath: m_MovementSpeed
-      value: 40
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 6402034801712177066, guid: a53f36e79d43ea84099cf73bdafee809, type: 3}
       propertyPath: m_profileRef

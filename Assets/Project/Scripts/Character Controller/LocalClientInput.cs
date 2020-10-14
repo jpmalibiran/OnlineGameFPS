@@ -20,6 +20,7 @@ namespace FPSCharController {
         [SerializeField] private Vector3 m_charViewAngleDebug;
         [SerializeField] private float m_mouseInputXDebug;
         [SerializeField] private float m_mouseInputYDebug;
+        [SerializeField] private float m_showDeltaTime;
         [SerializeField] private sbyte m_forwardDebug;
         [SerializeField] private sbyte m_backwardDebug;
         [SerializeField] private sbyte m_leftwardDebug;
@@ -298,7 +299,8 @@ namespace FPSCharController {
                 return;
             }
 
-            m_charCtrlRef.UpdateMoveVector(m_charMoveDir.normalized * m_MovementSpeed * Time.deltaTime);
+            m_charCtrlRef.UpdateMoveVector(m_charMoveDir.normalized, m_MovementSpeed);
+
         }
 
         //Allows you to set custom keybindings
