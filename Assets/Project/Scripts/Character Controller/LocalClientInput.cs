@@ -1,6 +1,6 @@
 ﻿/*
  * Author: Joseph Malibiran
- * Last Updated: October 11, 2020
+ * Last Updated: October 15, 2020
  */
 
 using System.Collections;
@@ -46,12 +46,12 @@ namespace FPSCharController {
         [SerializeField] private bool bUseFourDirectionalMovement = true;
         [SerializeField] private bool bLockCursorToCenter = true;
 
-        private Dictionary<KeyCode, InputEvent> m_keybindings;
+        private Dictionary<KeyCode, InputEvent> m_keybindings; 
 
         private Vector3 m_charMoveDir = Vector3.zero;
 
-        private float m_tempAngleHolderPitch = 0;
-        private float m_tempAngleHolderYaw = 0;
+        //private float m_tempAngleHolderPitch = 0;
+        //private float m_tempAngleHolderYaw = 0;
         private float m_mouseInputX;
         private float m_mouseInputY;
 
@@ -65,10 +65,10 @@ namespace FPSCharController {
         private void Awake() {
             m_keybindings = new Dictionary<KeyCode, InputEvent>();
 
+            //Set up player character references if available
             if (!m_charBodyRef && m_charCtrlRef) {
                 m_charBodyRef = m_charCtrlRef.transform;
             }
-
             if (!m_charCamContainerRef && m_charCtrlRef) {
                 m_charCamContainerRef = m_charCtrlRef.transform.GetChild(0);
             }
@@ -81,15 +81,18 @@ namespace FPSCharController {
                 Cursor.lockState = CursorLockMode.Locked;
             }
 
+            //Move the main camera into the player character prefab that this will control
             if (m_charMainCamRef && m_charCamContainerRef) {
                 m_charMainCamRef.SetParent(m_charCamContainerRef);
                 m_charMainCamRef.localPosition = Vector3.zero;
             }
 
+            //Provide the player character with reference to AmmoController.cs
             if (m_charCtrlRef && m_ammoCtrlRef) {
                 m_charCtrlRef.m_ammoCtrlRef = this.m_ammoCtrlRef;
             }
 
+            //Hide profile window
             if (m_profileRef) {
                 m_profileRef.SetActive(false);
             }
@@ -155,32 +158,6 @@ namespace FPSCharController {
             m_mouseInputY = Input.GetAxis("Mouse Y");
 
             m_charCtrlRef.UpdateFPSView(m_mouseInputX * m_CamSensHorizontal, m_mouseInputY * m_CamSensVertical, m_CamClampVertical);
-
-            //m_tempAngleHolderPitch = m_charCamContainerRef.localEulerAngles.x - (m_mouseInputY * m_CamSensVertical * Time.deltaTime);
-
-            ////Custom clamp because Mathf.Clamp() is fucking things up. 
-            ////This is because when using euler angles, degrees below zero can be represented as a value subracted from 360. Thus, When the euler angle goes below zero it also exceeds the maximum clamp. 
-            //if (m_tempAngleHolderPitch > m_CamClampVertical && m_tempAngleHolderPitch <= 180) {
-            //    m_tempAngleHolderPitch = m_CamClampVertical;
-            //}
-            //else if (m_tempAngleHolderPitch > 180 && m_tempAngleHolderPitch < (360 - m_CamClampVertical)) {
-            //    m_tempAngleHolderPitch = (360 - m_CamClampVertical);
-            //}
-            //if (m_tempAngleHolderPitch < -1) {
-            //    m_tempAngleHolderPitch = 0;
-            //}
-            //m_charCamContainerRef.localEulerAngles = new Vector3(m_tempAngleHolderPitch, m_charCamContainerRef.localEulerAngles.y, m_charCamContainerRef.localEulerAngles.z);
-
-            //m_tempAngleHolderYaw = m_charBodyRef.eulerAngles.y + (m_mouseInputX * m_CamSensHorizontal * Time.deltaTime);
-            //m_charBodyRef.eulerAngles = new Vector3(m_charBodyRef.eulerAngles.x, m_tempAngleHolderYaw, m_charBodyRef.eulerAngles.z);
-
-            //if (bDebug) {
-            //    m_charViewAngleDebug.x = m_charCamContainerRef.localEulerAngles.x;
-            //    m_charViewAngleDebug.y = m_charBodyRef.eulerAngles.y;
-            //    m_charViewAngleDebug.z = 0;
-            //    m_mouseInputXDebug = m_mouseInputX;
-            //    m_mouseInputYDebug = m_mouseInputY;
-            //}
 
         }
 
@@ -296,6 +273,7 @@ namespace FPSCharController {
             
         }
 
+        //Update the movement vector of the player character
         private void UpdateCharMovement() {
             if (!m_charCtrlRef) {
                 Debug.LogError("[Error] Missing reference to m_charCtrlRef! Aborting operation...");
@@ -311,6 +289,7 @@ namespace FPSCharController {
             //TODO Incomplete
         }
 
+        //process for muzzle flash and gunshot cooldown
         IEnumerator Gunfire() {
 
             bCanFire = false;

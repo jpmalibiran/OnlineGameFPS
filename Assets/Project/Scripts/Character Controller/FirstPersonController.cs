@@ -1,6 +1,6 @@
 ﻿/*
  * Author: Joseph Malibiran
- * Last Updated: October 11, 2020
+ * Last Updated: October 15, 2020
  */
 
 using System.Collections;
@@ -47,26 +47,29 @@ namespace FPSCharController {
             StartCoroutine(DelayMoveUpdate());
         }
 
+        //Fixed update is in line with physics
         private void FixedUpdate() {
             MoveUpdate();
         }
 
+        //Moves the player character
         private void MoveUpdate() {
+            //Allows for delays before player can move their character. 
             if (!bAllowMoveUpdate) {
                 return;
             }
 
-            ////Not a new movement vector direction, therefore no need to update
-            //if (m_PrevMoveDirection == m_moveDirection) {
-            //    return;
-            //}
+            //Zero vector implies no movement, thus no need to apply movement to rigidbody
+            if (m_moveDirection == Vector3.zero) {
+                return;
+            }
 
-            //m_PrevMoveDirection = m_moveDirection;
-
-            m_rbRef.MovePosition(this.transform.position + m_moveDirection * Time.deltaTime);
+            //Apply movement towards a direction. Note: speed is applied in UpdateMoveVector(), but it was decided in LocalClientInput.cs
+            m_rbRef.MovePosition(this.transform.position + m_moveDirection * Time.fixedDeltaTime);
             
         }
 
+        //Updates the movement vector of this character. This is updated by LocalClientINput.cs
         public void UpdateMoveVector(Vector3 getVector, float getSpeed) {
 
             m_moveDirection = m_worldBodyRef.TransformDirection(getVector).normalized * getSpeed;
@@ -82,6 +85,7 @@ namespace FPSCharController {
 
             //This is a custom clamp because Mathf.Clamp() is fucking things up. 
             //The issue was: when using euler angles, degrees below zero can also be represented as a value subracted from 360. Thus, When the euler angle goes below zero it also exceeds the maximum clamp. 
+            //The solution below basically checks if the pitch euler angle does into an angle it's not supposed to be, then it moves it to the upper or lower bound of the clamp, whichever is closer.
 
             //Calculate and apply pitch rotation (rotation upon the local x axis)
             if (pitchCalc > getPitchClamp && pitchCalc <= 180) {
@@ -93,13 +97,11 @@ namespace FPSCharController {
             if (pitchCalc < -1) {
                 pitchCalc = 0;
             }
-            m_localCamRef.localEulerAngles = new Vector3(pitchCalc, m_localCamRef.localEulerAngles.y, m_localCamRef.localEulerAngles.z);
+            m_localCamRef.localEulerAngles = new Vector3(pitchCalc, m_localCamRef.localEulerAngles.y, m_localCamRef.localEulerAngles.z); //Apply pitch euler angle to camera x axis
 
             yawCalc = m_worldBodyRef.eulerAngles.y + (getYaw * Time.deltaTime);
-            m_worldBodyRef.eulerAngles = new Vector3(m_worldBodyRef.eulerAngles.x, yawCalc, m_worldBodyRef.eulerAngles.z);
+            m_worldBodyRef.eulerAngles = new Vector3(m_worldBodyRef.eulerAngles.x, yawCalc, m_worldBodyRef.eulerAngles.z); //Apply yaw euler angle to body y axis
 
-            //m_worldBodyRef.eulerAngles = getWorldBodyRotation;
-            //m_localCamRef.localEulerAngles = getLocalCamRotation;
         }
 
         //TODO do a proper grounded check
@@ -107,6 +109,7 @@ namespace FPSCharController {
             return bGrounded;
         }
 
+        //Activates a jump via physics impulse. Right now it doesn't check if the player is grounded. Right now it just has a cooldown.
         public void CommenceJump(float getForce) {
             if (!bGrounded) {
                 return;
@@ -115,6 +118,8 @@ namespace FPSCharController {
             StartCoroutine(JumpRoutine(getForce));
         }
 
+        //Does a raycast from the center of the screen directly outward. Plays audio, subtracts ammo, check if the raycast hits any object colliders.
+        //Note: UI layer muzzle flash and gunfire cooldown is handled in LocalClientInput.cs
         public HitData FireWeapon() {
             Vector3 mousePosition;
             HitData newHitData;
@@ -155,11 +160,13 @@ namespace FPSCharController {
             return newHitData; //TODO make this useful
         }
 
+        //Delay before movement can occur
         IEnumerator DelayMoveUpdate() {
             yield return new WaitForSeconds(0.6f);
             bAllowMoveUpdate = true;
         }
 
+        //Jump cooldown
         IEnumerator JumpRoutine(float getForce) {
             m_rbRef.AddForce(Vector3.up * getForce, ForceMode.Impulse);
             yield return new WaitForSeconds(0.6f);
