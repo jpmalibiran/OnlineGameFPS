@@ -1646,6 +1646,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7946634524960099865, guid: f295db843fd380a4fb62aa0143305b95, type: 3}
+      propertyPath: m_Volume
+      value: 0.525
+      objectReference: {fileID: 0}
     - target: {fileID: 7946634524960099870, guid: f295db843fd380a4fb62aa0143305b95, type: 3}
       propertyPath: m_Name
       value: MainMenuLoop
