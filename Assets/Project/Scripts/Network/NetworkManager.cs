@@ -40,9 +40,13 @@ namespace FPSNetworkCode {
 
         private bool isConnected = false;
 
+        private void Awake() {
+            dataQueue = new Queue<string>();
+        }
+
         // Start is called before the first frame update
         void Start() {
-            NetworkSetUp();
+            //NetworkSetUp();
         }
 
         void OnDestroy() {
@@ -51,7 +55,7 @@ namespace FPSNetworkCode {
             dataQueue.Clear();
         }
 
-        void Update() {
+        void FixedUpdate() {
             ProcessServerMessages();
         }
 
@@ -115,13 +119,13 @@ namespace FPSNetworkCode {
             //Allow the client to receive network messages from the server
             udp.BeginReceive(new AsyncCallback(OnReceived), udp);
 
-            if (bDebug){ Debug.Log("[Notice] Routinely pinging server...");}
+            //if (bDebug){ Debug.Log("[Notice] Routinely pinging server...");}
 
-            InvokeRepeating("RoutinePing", 1, 1); // Sends 1 ping message to server every 1 second.
+            //InvokeRepeating("RoutinePing", 1, 1); // Sends 1 ping message to server every 1 second.
         }
 
-        //Sends a 'ping' message to the server
-        private void RoutinePing() {
+        //Sends a 'pong' message to the server
+        private void ResponsePong() {
             if (!isConnected) {
                 return;
             }
@@ -130,10 +134,10 @@ namespace FPSNetworkCode {
             FlagNetworkMsg pingFlagMsg;
             Byte[] sendBytes;
 
-            if (bDebug && bVerboseDebug){ Debug.Log("[Routine] Sending flag to server: ping"); }
+            if (bDebug && bVerboseDebug){ Debug.Log("[Routine] Sending flag to server: pong"); }
 
             //Send flag 'ping' to server
-            pingFlagMsg = new FlagNetworkMsg(flag.PING);
+            pingFlagMsg = new FlagNetworkMsg(flag.PONG);
             msgJson = JsonUtility.ToJson(pingFlagMsg);
             sendBytes = Encoding.ASCII.GetBytes(msgJson);
             udp.Send(sendBytes, sendBytes.Length);
@@ -147,9 +151,17 @@ namespace FPSNetworkCode {
                 return;
             }
 
+            if (JsonUtility.FromJson<FlagNetworkMsg>(dataQueue.Peek()).flag == flag.PING) { //Received a ping from the server
+                if (bDebug && bVerboseDebug){ Debug.Log("[Routine] Received flag from server: ping"); }
+                ResponsePong(); //Send a response pong message
+                dataQueue.Dequeue();
+            }
 
         }
 
+        public void ConnectToServer() {
+            NetworkSetUp();
+        }
     }
 
 }
