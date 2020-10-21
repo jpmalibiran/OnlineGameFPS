@@ -154,7 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bDebug: 1
   bDebugToConsole: 0
-  netManagerRef: {fileID: 0}
+  netManagerRef: {fileID: 1977101643}
   m_messageFeedRef: {fileID: 296706439}
   m_inputFieldRef: {fileID: 577774224}
   m_localUsername: default
@@ -208,7 +208,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: -180}
-  m_SizeDelta: {x: 210, y: 300}
+  m_SizeDelta: {x: 450, y: 300}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &296706439
 MonoBehaviour:
@@ -360,7 +360,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
   m_AnchoredPosition: {x: 0, y: 32}
-  m_SizeDelta: {x: 220, y: 30}
+  m_SizeDelta: {x: 460, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &577774224
 MonoBehaviour:
@@ -417,7 +417,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 176109175}
         m_TargetAssemblyTypeName: FPSNetworkCode.ConsoleManager, Assembly-CSharp
-        m_MethodName: UpdateMessageBox
+        m_MethodName: NewChatMessage
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -931,7 +931,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 260, y: 400}
+  m_SizeDelta: {x: 500, y: 400}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1839450800
 MonoBehaviour:
@@ -1066,7 +1066,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1977101643
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1085,6 +1085,7 @@ MonoBehaviour:
   showClientPort: 
   showPing: 
   showIfConnected: 0
+  consoleRef: {fileID: 176109175}
   remoteEndpointAddress: localhost
   remoteEndpointPort: 12345
 --- !u!4 &1977101644

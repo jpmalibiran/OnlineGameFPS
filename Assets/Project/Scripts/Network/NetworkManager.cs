@@ -1,6 +1,6 @@
 ﻿/*
  * Author: Joseph Malibiran
- * Last Updated: October 8, 2020
+ * Last Updated: October 21, 2020
  */
 
 using System.Collections;
@@ -27,6 +27,9 @@ namespace FPSNetworkCode {
         [SerializeField] private string showPing; //Ping displays the average time between a 'ping' message to the server and when it receives a 'pong' message from the server.
         [SerializeField] private bool showIfConnected;
 
+        [Header("References")]
+        [SerializeField] private ConsoleManager consoleRef;
+
         [Header("UDP Settings")] //These values must be filled in the inspector
         [SerializeField] private string remoteEndpointAddress;
         [SerializeField] private int remoteEndpointPort;
@@ -45,22 +48,26 @@ namespace FPSNetworkCode {
         }
 
         // Start is called before the first frame update
-        void Start() {
+        private void Start() {
             //NetworkSetUp();
         }
 
-        void OnDestroy() {
+        private void OnDestroy() {
             if (bDebug){ Debug.Log("[Notice] Cleaning up UDP Client...");}
             udp.Dispose();
-            dataQueue.Clear();
+            if (dataQueue.Count > 0) {
+                dataQueue.Clear();
+            }
+            isConnected = false;
+            showIfConnected = isConnected;
         }
 
-        void FixedUpdate() {
+        private void FixedUpdate() {
             ProcessServerMessages();
         }
 
         //Receives messages from the server
-        void OnReceived(IAsyncResult result) {
+        private void OnReceived(IAsyncResult result) {
             // this is what had been passed into BeginReceive as the second parameter:
             UdpClient socket = result.AsyncState as UdpClient;
         
@@ -86,14 +93,15 @@ namespace FPSNetworkCode {
         private void NetworkSetUp() {
             string msgJson;
             Byte[] sendBytes;
-            FlagNetworkMsg connectFlagMsg; //Note: FlagNetworkMsg is a class that only has a flag enum property. The term 'flag' in this context identifies the type of a network message.
+            StringNetMsg connectFlagMsg; //Note: FlagNetworkMsg is a class that only has a flag enum property. The term 'flag' in this context identifies the type of a network message.
 
             if (bDebug){ Debug.Log("[Notice] Setting up client...");}
 
             udp = new UdpClient();
             playerReferences = new Dictionary<int, Transform>();
             dataQueue = new Queue<string>();
-            connectFlagMsg = new FlagNetworkMsg(flag.CONNECT); 
+            connectFlagMsg = new StringNetMsg(Flag.CONNECT); 
+            connectFlagMsg.message = GameVersion.GetVersion();
 
             if (bDebug){ Debug.Log("[Notice] Client connecting to Server...");}
 
@@ -131,17 +139,36 @@ namespace FPSNetworkCode {
             }
 
             string msgJson;
-            FlagNetworkMsg pingFlagMsg;
+            FlagNetMsg pingFlagMsg;
             Byte[] sendBytes;
 
             if (bDebug && bVerboseDebug){ Debug.Log("[Routine] Sending flag to server: pong"); }
 
             //Send flag 'ping' to server
-            pingFlagMsg = new FlagNetworkMsg(flag.PONG);
+            pingFlagMsg = new FlagNetMsg(Flag.PONG);
             msgJson = JsonUtility.ToJson(pingFlagMsg);
             sendBytes = Encoding.ASCII.GetBytes(msgJson);
             udp.Send(sendBytes, sendBytes.Length);
 
+        }
+
+        //Sends this game's version to the server
+        private void ResponseVersion() {
+            if (!isConnected) {
+                return;
+            }
+
+            string msgJson;
+            StringNetMsg versionNetMsg;
+            Byte[] sendBytes;
+
+            Debug.Log("[Notice] Sending version to server...");
+            versionNetMsg = new StringNetMsg(Flag.VERSION);
+            versionNetMsg.message = GameVersion.GetVersion();
+
+            msgJson = JsonUtility.ToJson(versionNetMsg);
+            sendBytes = Encoding.ASCII.GetBytes(msgJson);
+            udp.Send(sendBytes, sendBytes.Length);
         }
 
         //Process the network messages sent by the server. We stored them in a queue during OnReceived(). TODO incomplete
@@ -151,16 +178,42 @@ namespace FPSNetworkCode {
                 return;
             }
 
-            if (JsonUtility.FromJson<FlagNetworkMsg>(dataQueue.Peek()).flag == flag.PING) { //Received a ping from the server
+            if (!isConnected) {
+                dataQueue.Clear();
+                return;
+            }
+
+            if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.PING) { //Received a ping from the server
                 if (bDebug && bVerboseDebug){ Debug.Log("[Routine] Received flag from server: ping"); }
                 ResponsePong(); //Send a response pong message
                 dataQueue.Dequeue();
             }
+            else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.VERSION) { //Receives a version request from server. Note: Not used in this case as the client sends the version with the first CONNECT message
+                if (bDebug){ Debug.Log("[Routine] Received flag from server: version"); }
+                ResponseVersion();
+                dataQueue.Dequeue();
+            }
+            else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.INVALID_VERSION) { //Receives an invalid version message from server
+                if (bDebug){ Debug.Log("[Notice] Received flag from server: invalid version"); }
 
+                if (consoleRef) {
+                    consoleRef.UpdateChat("[Console] Incompatible client version; disconnecting from server...");
+                }
+
+                Disconnect();
+                dataQueue.Dequeue();
+            }
         }
 
         public void ConnectToServer() {
             NetworkSetUp();
+        }
+
+        public void Disconnect() {
+            udp.Dispose();
+            isConnected = false;
+            showIfConnected = isConnected;
+            Debug.Log("[Notice] Disconnected from server.");
         }
     }
 

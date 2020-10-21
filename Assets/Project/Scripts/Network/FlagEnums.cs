@@ -10,12 +10,15 @@ using UnityEngine;
 namespace FPSNetworkCode {
 
     //The enum 'flag' in this context identifies the type of a network message.
-    public enum flag {
+    public enum Flag {
         DEFAULT,
         CONNECT,
+        DISCONNECT,
         PING,
         PONG,
         MESSAGE,
         PLAYERDATA,
+        VERSION,
+        INVALID_VERSION
     };
 }

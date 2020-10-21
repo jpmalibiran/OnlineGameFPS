@@ -1,4 +1,9 @@
-﻿using System.Collections;
+﻿/*
+ * Author: Joseph Malibiran
+ * Last Updated: October 21, 2020
+ */
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
