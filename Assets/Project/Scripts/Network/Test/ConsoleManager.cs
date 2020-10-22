@@ -96,6 +96,16 @@ namespace FPSNetworkCode {
                     if (bDebugToConsole) { UpdateChat("[Error] Network Manager reference missing! Aborting operation... ");}
                 }
             }
+            else if (getMsg == "/join any" || getMsg == "/join matchmaking") {
+                if (netManagerRef) {
+                    UpdateChat("[Console] Joining matchmaking... ");
+                    netManagerRef.CommenceMatchmaking();
+                }
+                else {
+                    Debug.LogError("[Error] Network Manager reference missing! Aborting operation... ");
+                    if (bDebugToConsole) { UpdateChat("[Error] Network Manager reference missing! Aborting operation... ");}
+                }
+            }
             else if (getMsg.Substring(0,5) == "/join ") { //read first 6 letters, check if it is a join command
 
                 switch (getMsg.Substring(6)) {

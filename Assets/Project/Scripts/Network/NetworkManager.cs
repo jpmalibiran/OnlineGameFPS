@@ -132,7 +132,26 @@ namespace FPSNetworkCode {
             //InvokeRepeating("RoutinePing", 1, 1); // Sends 1 ping message to server every 1 second.
         }
 
+        private void SendFlagMessage(Flag getFlag) {
+            if (!isConnected) {
+                return;
+            }
+
+            string msgJson;
+            FlagNetMsg flagMsg;
+            Byte[] sendBytes;
+
+            if (bDebug && bVerboseDebug){ Debug.Log("[Notice] Sending flag " + getFlag.ToString() +" to server..."); }
+
+            //Send flag to server
+            flagMsg = new FlagNetMsg(getFlag);
+            msgJson = JsonUtility.ToJson(flagMsg);
+            sendBytes = Encoding.ASCII.GetBytes(msgJson);
+            udp.Send(sendBytes, sendBytes.Length);
+        }
+
         //Sends a 'pong' message to the server
+        //TODO this method might be replaced by SendFlagMessage()
         private void ResponsePong() {
             if (!isConnected) {
                 return;
@@ -207,6 +226,18 @@ namespace FPSNetworkCode {
 
         public void ConnectToServer() {
             NetworkSetUp();
+        }
+
+        public void CommenceMatchmaking() {
+            if (!isConnected) {
+                Debug.Log("[Notice] User not connected to server; aborting operation.");
+                if (consoleRef) {
+                    consoleRef.UpdateChat("[Console] Cannot join matchmaking; user is not connected to server.");
+                }
+                return;
+            }
+
+            SendFlagMessage(Flag.QUEUE_MATCHMAKING);
         }
 
         public void Disconnect() {

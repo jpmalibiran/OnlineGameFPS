@@ -19,6 +19,7 @@ namespace FPSNetworkCode {
         MESSAGE,
         PLAYERDATA,
         VERSION,
-        INVALID_VERSION
+        INVALID_VERSION,
+        QUEUE_MATCHMAKING
     };
 }
