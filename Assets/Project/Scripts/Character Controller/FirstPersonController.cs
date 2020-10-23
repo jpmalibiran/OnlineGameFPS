@@ -128,7 +128,7 @@ namespace FPSCharController {
                 m_audioSrcRef.Play();
             }
 
-            mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition); 
+            //mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition); //TODO change into origin of screen
 
             if (m_ammoCtrlRef) {
                 m_ammoCtrlRef.Fired(); //Ticks down ammo count
@@ -137,7 +137,7 @@ namespace FPSCharController {
             //int layerMask = 1 << 5;
             //layerMask = ~layerMask;
 
-            if (Physics.Raycast(mousePosition, Camera.main.transform.TransformDirection(Vector3.forward), out hit)){
+            if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.TransformDirection(Vector3.forward), out hit)){
                 //Debug.DrawRay(mousePosition, Camera.main.transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
                 
                 if (hit.transform.tag == "Player") {

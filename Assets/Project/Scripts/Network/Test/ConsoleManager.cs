@@ -1,6 +1,6 @@
 ﻿/*
  * Author: Joseph Malibiran
- * Last Updated: October 21, 2020
+ * Last Updated: October 22, 2020
  */
 
 using System.Collections;
@@ -86,27 +86,28 @@ namespace FPSNetworkCode {
                 return false;
             }
 
+            if (!netManagerRef) {
+                Debug.LogError("[Error] Network Manager reference missing! Aborting operation... ");
+                if (bDebugToConsole) { UpdateChat("[Error] Network Manager reference missing! Aborting operation... ");}
+                return false;
+            }
+
+
             if (getMsg == "/connect") {
-                if (netManagerRef) {
-                    UpdateChat("[Console] Connecting to server... ");
-                    netManagerRef.ConnectToServer();
-                }
-                else {
-                    Debug.LogError("[Error] Network Manager reference missing! Aborting operation... ");
-                    if (bDebugToConsole) { UpdateChat("[Error] Network Manager reference missing! Aborting operation... ");}
-                }
+                UpdateChat("[Console] Connecting to server... ");
+                netManagerRef.ConnectToServer();
             }
-            else if (getMsg == "/join any" || getMsg == "/join matchmaking") {
-                if (netManagerRef) {
-                    UpdateChat("[Console] Joining matchmaking... ");
-                    netManagerRef.CommenceMatchmaking();
-                }
-                else {
-                    Debug.LogError("[Error] Network Manager reference missing! Aborting operation... ");
-                    if (bDebugToConsole) { UpdateChat("[Error] Network Manager reference missing! Aborting operation... ");}
-                }
+            else if (getMsg == "/join any" || getMsg == "/join matchmaking" || getMsg == "/join") {
+                UpdateChat("[Console] Joining matchmaking... ");
+                netManagerRef.CommenceMatchmaking();
             }
-            else if (getMsg.Substring(0,5) == "/join ") { //read first 6 letters, check if it is a join command
+            else if (getMsg == "/leave" || getMsg == "/leave lobby") {
+                netManagerRef.LeaveCurrentLobby();
+            }
+            else if (getMsg == "/disconnect") {
+                netManagerRef.Disconnect();
+            }
+            else if (getMsg.Substring(0,5) == "/join " && getMsg.Length == 7) { //read first 6 letters, check if it is a join command
 
                 switch (getMsg.Substring(6)) {
                     case "1":
@@ -122,12 +123,13 @@ namespace FPSNetworkCode {
 
                         break;
                     default:
-                        break;
+                        return false;
                 }
             }
             else {
                 Debug.Log("[Notice] Invalid Command. ");
                 UpdateChat("[Console] Invalid Command. ");
+                return false;
             }
             
             return true;

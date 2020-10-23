@@ -1,6 +1,6 @@
 ﻿/*
  * Author: Joseph Malibiran
- * Last Updated: October 21, 2020
+ * Last Updated: October 22, 2020
  */
 
 using System.Collections;
@@ -42,6 +42,7 @@ namespace FPSNetworkCode {
         private string clientPort;
 
         private bool isConnected = false;
+        private bool isInLobby = false;
 
         private void Awake() {
             dataQueue = new Queue<string>();
@@ -113,15 +114,12 @@ namespace FPSNetworkCode {
                 Debug.LogWarning("[Warning] Failed to connect to server. " + e.ToString() + " Aborting operation...");
                 return;
             }
-            isConnected = true;
-            showIfConnected = isConnected;
 
             //Send flag 'connect' to server
             msgJson = JsonUtility.ToJson(connectFlagMsg); 
             sendBytes = Encoding.ASCII.GetBytes(msgJson);
             udp.Send(sendBytes, sendBytes.Length);
 
-            if (bDebug){ Debug.Log("[Notice] Client connection established with " + udp.Client.RemoteEndPoint.ToString() + ".");}
             if (bDebug){ Debug.Log("[Notice] Client is now listening for server messages...");}
 
             //Allow the client to receive network messages from the server
@@ -197,12 +195,20 @@ namespace FPSNetworkCode {
                 return;
             }
 
-            if (!isConnected) {
+            if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.CONNECT) {
+                isConnected = true;
+                showIfConnected = isConnected;
+                if (bDebug){ Debug.Log("[Notice] Client connection established with " + udp.Client.RemoteEndPoint.ToString() + ".");}
+                if (consoleRef) {
+                    consoleRef.UpdateChat("[Console] Client connection established with server.");
+                }
+                dataQueue.Dequeue();
+            }
+            else if (!isConnected) {
                 dataQueue.Clear();
                 return;
             }
-
-            if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.PING) { //Received a ping from the server
+            else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.PING) { //Received a ping from the server
                 if (bDebug && bVerboseDebug){ Debug.Log("[Routine] Received flag from server: ping"); }
                 ResponsePong(); //Send a response pong message
                 dataQueue.Dequeue();
@@ -222,9 +228,33 @@ namespace FPSNetworkCode {
                 Disconnect();
                 dataQueue.Dequeue();
             }
+            else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.JOINED_LOBBY) {
+                isInLobby = true;
+                Debug.Log("[Notice] You have joined a lobby.");
+                if (consoleRef) {
+                    consoleRef.UpdateChat("[Console] You have joined a lobby.");
+                }
+                dataQueue.Dequeue();
+            }
+            else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.LEAVE_LOBBY) {
+                isInLobby = false;
+                Debug.Log("[Notice] You have left the lobby.");
+                if (consoleRef) {
+                    consoleRef.UpdateChat("[Console] You have left the lobby.");
+                }
+                dataQueue.Dequeue();
+            }
         }
 
         public void ConnectToServer() {
+            if (isConnected) {
+                Debug.Log("[Notice] You are already connected to server; aborting operation...");
+                if (consoleRef) {
+                    consoleRef.UpdateChat("[Console] You are already connected to server; aborting operation...");
+                }
+                return;
+            }
+
             NetworkSetUp();
         }
 
@@ -237,14 +267,53 @@ namespace FPSNetworkCode {
                 return;
             }
 
+            if (isInLobby) {
+                Debug.Log("[Notice] You are already in a game lobby; aborting operation...");
+                if (consoleRef) {
+                    consoleRef.UpdateChat("[Console] Cannot join matchmaking; you are already in a game lobby...");
+                }
+                return;
+            }
+
             SendFlagMessage(Flag.QUEUE_MATCHMAKING);
         }
 
+        public void LeaveCurrentLobby() {
+            if (!isConnected) {
+                Debug.Log("[Notice] User not connected to server; aborting operation...");
+                if (consoleRef) {
+                    consoleRef.UpdateChat("[Console] Cannot join matchmaking; user is not connected to server.");
+                }
+                return;
+            }
+
+            if (isInLobby == false) {
+                Debug.Log("[Notice] You are not in a game lobby; aborting operation...");
+                if (consoleRef) {
+                    consoleRef.UpdateChat("[Console] You are not in a game lobby; aborting operation...");
+                }
+                return;
+            }
+
+            SendFlagMessage(Flag.LEAVE_LOBBY);
+        }
+
         public void Disconnect() {
+            if (!isConnected) {
+                Debug.LogWarning("[Notice] You are not connected to a server; aborting operation...");
+                if (consoleRef) {
+                    consoleRef.UpdateChat("[Console] You are not connected to a server; aborting operation...");
+                }
+                return;
+            }
+
             udp.Dispose();
             isConnected = false;
             showIfConnected = isConnected;
             Debug.Log("[Notice] Disconnected from server.");
+            if (consoleRef) {
+                consoleRef.UpdateChat("[Console] Disconnected from server.");
+            }
         }
     }
 
