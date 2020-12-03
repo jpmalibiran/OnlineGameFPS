@@ -34,24 +34,29 @@ namespace FPSNetworkCode {
         [SerializeField] private string remoteEndpointAddress;
         [SerializeField] private int remoteEndpointPort;
 
-        private Dictionary<int, Transform> playerReferences; //Contains references of gameObjects as Transform representing the characters of clients connected to an online match
+        //private Dictionary<int, Transform> playerReferences; //Contains references of gameObjects as Transform representing the characters of clients connected to an online match
+        private Dictionary<int, PlayerData> clientDataDict;
+        private List<int> lobbyPlayerIDList;
         private Queue<string> dataQueue; //data received from the server is queued so they are only processed once chronologically
 
-        // Refers to *this* client's address
+        // Refers to *this* client
         private string clientIP;
         private string clientPort;
+        private string clientUsername;
 
         private bool isConnected = false;
         private bool isInLobby = false;
+        private bool isLoggedIn = false;
 
         private void Awake() {
             dataQueue = new Queue<string>();
+            clientUsername = "default";
         }
 
         // Start is called before the first frame update
-        private void Start() {
-            //NetworkSetUp();
-        }
+        //private void Start() {
+        //    NetworkSetUp();
+        //}
 
         private void OnDestroy() {
             if (bDebug){ Debug.Log("[Notice] Cleaning up UDP Client...");}
@@ -94,15 +99,15 @@ namespace FPSNetworkCode {
         private void NetworkSetUp() {
             string msgJson;
             Byte[] sendBytes;
-            StringNetMsg connectFlagMsg; //Note: FlagNetworkMsg is a class that only has a flag enum property. The term 'flag' in this context identifies the type of a network message.
+            ConnectNetMsg connectMsg; //Note: FlagNetworkMsg is a class that only has a flag enum property. The term 'flag' in this context identifies the type of a network message.
 
             if (bDebug){ Debug.Log("[Notice] Setting up client...");}
 
             udp = new UdpClient();
-            playerReferences = new Dictionary<int, Transform>();
+            clientDataDict = new Dictionary<int, PlayerData>();
+            lobbyPlayerIDList = new List<int>();
             dataQueue = new Queue<string>();
-            connectFlagMsg = new StringNetMsg(Flag.CONNECT); 
-            connectFlagMsg.message = GameVersion.GetVersion();
+            connectMsg = new ConnectNetMsg(GameVersion.GetVersion(), clientUsername); 
 
             if (bDebug){ Debug.Log("[Notice] Client connecting to Server...");}
 
@@ -116,7 +121,7 @@ namespace FPSNetworkCode {
             }
 
             //Send flag 'connect' to server
-            msgJson = JsonUtility.ToJson(connectFlagMsg); 
+            msgJson = JsonUtility.ToJson(connectMsg); 
             sendBytes = Encoding.ASCII.GetBytes(msgJson);
             udp.Send(sendBytes, sendBytes.Length);
 
@@ -198,7 +203,7 @@ namespace FPSNetworkCode {
             if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.CONNECT) {
                 isConnected = true;
                 showIfConnected = isConnected;
-                if (bDebug){ Debug.Log("[Notice] Client connection established with " + udp.Client.RemoteEndPoint.ToString() + ".");}
+                if (bDebug) { Debug.Log("[Notice] Client connection established with " + udp.Client.RemoteEndPoint.ToString() + "."); }
                 if (consoleRef) {
                     consoleRef.UpdateChat("[Console] Client connection established with server.");
                 }
@@ -207,6 +212,42 @@ namespace FPSNetworkCode {
             else if (!isConnected) {
                 dataQueue.Clear();
                 return;
+            }
+            else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.CREATE_ACCOUNT) {
+                if (bDebug){ Debug.Log("[Notice] New account created."); }
+
+                if (consoleRef) {
+                    consoleRef.UpdateChat("[Console] Account created successfully.");
+                }
+                dataQueue.Dequeue();
+            }
+            else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.FAILED_ACCOUNT_CREATION) {
+                if (bDebug){ Debug.Log("[Notice] Failed to create new account."); }
+
+                if (consoleRef) {
+                    consoleRef.UpdateChat("[Console] Failed to create account; Invalid username or password.");
+                }
+                dataQueue.Dequeue();
+            }
+            else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.LOGIN_ACCOUNT) {
+                isLoggedIn = true;
+
+                if (bDebug){ Debug.Log("[Notice] Client has successfully logged in."); }
+
+                //TODO: Exit login screen; Load next scene 
+
+                if (consoleRef) {
+                    consoleRef.UpdateChat("[Console] Successfully logged in.");
+                }
+                dataQueue.Dequeue();
+            }
+            else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.FAILED_LOGIN) {
+                if (bDebug){ Debug.Log("[Notice] Failed to log in."); }
+
+                if (consoleRef) {
+                    consoleRef.UpdateChat("[Console] Login failed; Invalid username or password.");
+                }
+                dataQueue.Dequeue();
             }
             else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.PING) { //Received a ping from the server
                 if (bDebug && bVerboseDebug){ Debug.Log("[Routine] Received flag from server: ping"); }
@@ -228,13 +269,27 @@ namespace FPSNetworkCode {
                 Disconnect();
                 dataQueue.Dequeue();
             }
-            else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.JOINED_LOBBY) {
+            else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.JOINED_LOBBY) { //TODO untested
                 isInLobby = true;
                 Debug.Log("[Notice] You have joined a lobby.");
                 if (consoleRef) {
                     consoleRef.UpdateChat("[Console] You have joined a lobby.");
                 }
+                LobbyUpdate lobbyClientList = JsonUtility.FromJson<LobbyUpdate>(dataQueue.Peek());
+
+                //TODO untested
+                //Save client info. just username and id for now
+
+                foreach (LobbyClient client in lobbyClientList.clients) {
+                    PlayerData newPlayerData = new PlayerData();
+                    newPlayerData.username = client.username;
+                    clientDataDict.Add(client.id, newPlayerData);
+                    lobbyPlayerIDList.Add(client.id);
+                }
+
                 dataQueue.Dequeue();
+
+                PrintLobbyClients(); //TEMP
             }
             else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.LEAVE_LOBBY) {
                 isInLobby = false;
@@ -242,6 +297,34 @@ namespace FPSNetworkCode {
                 if (consoleRef) {
                     consoleRef.UpdateChat("[Console] You have left the lobby.");
                 }
+                dataQueue.Dequeue();
+            }
+            else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.UPDATE_LOBBY) { //TODO untested
+                LobbyNewClientUpdate newClient;
+                isInLobby = false;
+
+                newClient = JsonUtility.FromJson<LobbyNewClientUpdate>(dataQueue.Peek());
+
+                Debug.Log("[Notice] A new client has joined the lobby.");
+                if (consoleRef) {
+                    consoleRef.UpdateChat("[Console] " + newClient.username + " has joined the lobby.");
+                }
+                
+                PlayerData newPlayerData = new PlayerData();
+                newPlayerData.username = newClient.username;
+                clientDataDict.Add(newClient.id, newPlayerData);
+                lobbyPlayerIDList.Add(newClient.id);
+                dataQueue.Dequeue();
+
+                PrintLobbyClients(); //TEMP
+            }
+            else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.CREATED_LOBBY) {
+                isInLobby = true;
+                Debug.Log("[Notice] A new lobby has been created.");
+                if (consoleRef) {
+                    consoleRef.UpdateChat("[Console] A new lobby has been created.");
+                }
+
                 dataQueue.Dequeue();
             }
         }
@@ -256,6 +339,40 @@ namespace FPSNetworkCode {
             }
 
             NetworkSetUp();
+        }
+
+        public void AttemptAccountCreation(string username, string password) {
+
+            string msgJson;
+            LoginMsg acctCreateMsg;
+            Byte[] sendBytes;
+
+            Debug.Log("[Notice] Sending registration info to server...");
+            acctCreateMsg = new LoginMsg(Flag.CREATE_ACCOUNT);
+            acctCreateMsg.version = GameVersion.GetVersion();
+            acctCreateMsg.username = username;
+            acctCreateMsg.password = password;
+
+            msgJson = JsonUtility.ToJson(acctCreateMsg);
+            sendBytes = Encoding.ASCII.GetBytes(msgJson);
+            udp.Send(sendBytes, sendBytes.Length);
+        }
+
+        public void AttemptLogin(string username, string password) {
+
+            string msgJson;
+            LoginMsg acctCreateMsg;
+            Byte[] sendBytes;
+
+            Debug.Log("[Notice] Sending login info to server...");
+            acctCreateMsg = new LoginMsg(Flag.LOGIN_ACCOUNT);
+            acctCreateMsg.version = GameVersion.GetVersion();
+            acctCreateMsg.username = username;
+            acctCreateMsg.password = password;
+
+            msgJson = JsonUtility.ToJson(acctCreateMsg);
+            sendBytes = Encoding.ASCII.GetBytes(msgJson);
+            udp.Send(sendBytes, sendBytes.Length);
         }
 
         public void CommenceMatchmaking() {
@@ -313,6 +430,27 @@ namespace FPSNetworkCode {
             Debug.Log("[Notice] Disconnected from server.");
             if (consoleRef) {
                 consoleRef.UpdateChat("[Console] Disconnected from server.");
+            }
+        }
+
+        //Prints the list of players that are in the same lobby as this client
+        public void PrintLobbyClients() {
+
+            if (lobbyPlayerIDList.Count <= 0) {
+                Debug.Log("[Notice] Lobby player list is empty.");
+                return;
+            }
+
+            Debug.Log("[Notice] Current Lobby player list:");
+            if (consoleRef) {
+                consoleRef.UpdateChat("[Notice] Current Lobby player list:");
+            }
+
+            foreach (int clientKey in lobbyPlayerIDList) {
+                Debug.Log("    - " + clientDataDict[clientKey].username + "(" + clientKey.ToString() + ")");
+                if (consoleRef) {
+                    consoleRef.UpdateChat("    - " + clientDataDict[clientKey].username + "(" + clientKey.ToString() + ")");
+                }
             }
         }
     }

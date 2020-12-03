@@ -32,6 +32,18 @@ namespace FPSNetworkCode {
         public StringNetMsg(Flag getFlag) {
             flag = getFlag;
         }
+    }
+
+    [Serializable]
+    public class ConnectNetMsg:FlagNetMsg {
+        public string version;
+        public string username;
+
+        public ConnectNetMsg(string getVersion, string getUsername) {
+            flag = Flag.CONNECT;
+            version = getVersion;
+            username = getUsername;
+        }
 
     }
 
@@ -47,4 +59,55 @@ namespace FPSNetworkCode {
 
     }
 
+    [Serializable]
+    public class LoginMsg {
+        public string version;
+        public string username;
+        public string password;
+        public Flag flag;
+
+        public LoginMsg(Flag getFlag){
+            flag = getFlag;
+        }
+
+        public LoginMsg(Flag getFlag, string getVersion, string getUsername, string getPassword){
+            flag = getFlag;
+            version = getVersion;
+            username = getUsername;
+            password = getPassword;
+        }
+    }
+
+    [Serializable]
+    public class LobbyUpdate {
+        public Flag flag;
+        public LobbyClient[] clients;
+    }
+
+    [Serializable]
+    public class LobbyClient {
+        public string username;
+        public int id;
+    }
+
+    [Serializable]
+    public class LobbyNewClientUpdate {
+        public Flag flag;
+        public string username;
+        public int id;
+    }
+
+    [Serializable]
+    public class PlayerData {
+        public Transform objReference;
+        public string username;
+        public Vector3 position;
+        public float yaw;
+        public float pitch;
+        public float latency;
+        public int health;
+        //public int bullets;
+        //TODO enum gun
+
+    }
 }

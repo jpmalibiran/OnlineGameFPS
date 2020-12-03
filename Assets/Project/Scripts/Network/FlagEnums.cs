@@ -22,6 +22,14 @@ namespace FPSNetworkCode {
         INVALID_VERSION,
         QUEUE_MATCHMAKING,
         JOINED_LOBBY,
-        LEAVE_LOBBY 
+        LEAVE_LOBBY,
+        UPDATE_LOBBY,
+        MESSAGE_LOBBY,
+        CREATED_LOBBY,
+        CREATE_ACCOUNT,
+        LOGIN_ACCOUNT,
+        FETCH_ACCOUNT,
+        FAILED_ACCOUNT_CREATION,
+        FAILED_LOGIN
     };
 }

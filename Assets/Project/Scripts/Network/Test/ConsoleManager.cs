@@ -1,6 +1,6 @@
 ﻿/*
  * Author: Joseph Malibiran
- * Last Updated: October 22, 2020
+ * Last Updated: December 2, 2020
  */
 
 using System.Collections;
@@ -20,13 +20,13 @@ namespace FPSNetworkCode {
         [SerializeField] private Text m_messageFeedRef;
         [SerializeField] private InputField m_inputFieldRef;
 
-        [SerializeField] private string m_localUsername = "default";
+        [SerializeField] private string m_localUsername = "default"; //TODO remove
         [SerializeField] private int m_maxLines = 12;
 
         private Queue<string> msgQueue = new Queue<string>();
 
         private void Start() {
-            m_localUsername = "user" + Random.Range(1, 9999).ToString();
+            m_localUsername = "user" + Random.Range(1, 9999).ToString(); //TODO remove
             ClearLocalChatBox();
         }
 
@@ -82,6 +82,10 @@ namespace FPSNetworkCode {
 
         public bool CommandReader(string getMsg) {
 
+            string usernameHolder = "";
+            string passwordHolder = ""; //temp plain text
+            int passwordStartIndex = -1;
+
             if (getMsg[0] != '/') { //Only process commands with '/' prefix
                 return false;
             }
@@ -92,10 +96,53 @@ namespace FPSNetworkCode {
                 return false;
             }
 
-
             if (getMsg == "/connect") {
                 UpdateChat("[Console] Connecting to server... ");
                 netManagerRef.ConnectToServer();
+            }
+            else if (getMsg.Substring(1,6).ToLower() == "login ") {
+                //Get username from syntax. its the first word after '/login '
+                for (int i = 7; i < getMsg.Length; i++) {
+                    if (getMsg[i] == ' ') {
+                        passwordStartIndex = i + 1;
+                        break;
+                    }
+                    usernameHolder = usernameHolder + getMsg[i];
+                }
+
+                if (passwordStartIndex == -1 || passwordStartIndex > getMsg.Length) {
+                    UpdateChat("[Console] Invalid syntax.");
+                    return false;
+                }
+
+                //Get password from syntax. its the word after the username
+                for (int i = passwordStartIndex; i < getMsg.Length; i++) {
+                    passwordHolder = passwordHolder + getMsg[i];
+                }
+
+                netManagerRef.AttemptLogin(usernameHolder, passwordHolder);
+            }
+            else if (getMsg.Substring(1,9).ToLower() == "register ") {
+                //Get username from syntax. its the first word after '/login '
+                for (int i = 10; i < getMsg.Length; i++) {
+                    if (getMsg[i] == ' ') {
+                        passwordStartIndex = i + 1;
+                        break;
+                    }
+                    usernameHolder = usernameHolder + getMsg[i];
+                }
+
+                if (passwordStartIndex == -1 || passwordStartIndex >= getMsg.Length) {
+                    UpdateChat("[Console] Invalid syntax.");
+                    return false;
+                }
+
+                //Get password from syntax. its the word after the username
+                for (int i = passwordStartIndex; i < getMsg.Length; i++) {
+                    passwordHolder = passwordHolder + getMsg[i];
+                }
+
+                netManagerRef.AttemptAccountCreation(usernameHolder, passwordHolder);
             }
             else if (getMsg == "/join any" || getMsg == "/join matchmaking" || getMsg == "/join") {
                 UpdateChat("[Console] Joining matchmaking... ");
