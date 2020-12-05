@@ -9,9 +9,11 @@ public class LoginController : MonoBehaviour
 {
     public GameObject LoginButton, LoginButtonCover, UserLoginText, PasswordText, TitleText, 
                       HeadingPanel, HeadingText, LoginButtonText, FadeoutPanel, RegisterButton,
-                      RegisterName, RegisterPassword, RegisterLocation, RegisterAge, SubmitCoverButton, SubmitButton;
+                      RegisterName, RegisterPassword, RegisterLocation, RegisterAge,
+                      SubmitCoverButton, SubmitButton, ErrorMessageBacking, ErrorMessageText;
     private int fakeLoginCount;
     public bool loggingIn, loggedIn, Registering;
+    public bool loginConfirmed;
     // Start is called before the first frame update
     void Start()
     {
@@ -57,14 +59,24 @@ public class LoginController : MonoBehaviour
         if(loggingIn)
         {
             
-            fakeLoginCount++;
-            if(fakeLoginCount > 1800)
+            
+            if(loginConfirmed)
             {
+                fakeLoginCount++;
+                if (fakeLoginCount > 180)
+                { 
                 LoggedIn();
                 loggingIn = false;
                 fakeLoginCount = 0;
+                }
+                           
             }
         }
+    }
+
+    void LoginConfirmed()
+    {
+        loginConfirmed = true;
     }
 
     public void LoggingIn()
@@ -136,5 +148,25 @@ public class LoginController : MonoBehaviour
     {
 
 
-    }    
+    }   
+    
+    public void UserExists()
+    {
+
+    }
+
+    public void AccountCreated()
+    { 
+    
+    }
+
+    public void IncorrectLogin()
+    {
+
+    }
+
+    public void SetProfile()
+    {
+
+    }
 }
