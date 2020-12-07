@@ -117,25 +117,24 @@ namespace FPSNetworkCode {
         }
     }
 
+    //[Serializable]
+    //public class LobbyUpdate {
+    //    public Flag flag;
+    //    public LobbyClient[] clients;
+    //}
 
-    [Serializable]
-    public class LobbyUpdate {
-        public Flag flag;
-        public LobbyClient[] clients;
-    }
+    //[Serializable]
+    //public class LobbyClient {
+    //    public string username;
+    //    public int id;
+    //}
 
-    [Serializable]
-    public class LobbyClient {
-        public string username;
-        public int id;
-    }
-
-    [Serializable]
-    public class LobbyNewClientUpdate {
-        public Flag flag;
-        public string username;
-        public int id;
-    }
+    //[Serializable]
+    //public class LobbyNewClientUpdate {
+    //    public Flag flag;
+    //    public string username;
+    //    public int id;
+    //}
 
     [Serializable]
     public class PlayerData {
@@ -148,6 +147,5 @@ namespace FPSNetworkCode {
         public int health;
         //public int bullets;
         //TODO enum gun
-
     }
 }

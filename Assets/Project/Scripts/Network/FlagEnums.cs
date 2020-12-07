@@ -29,6 +29,7 @@ namespace FPSNetworkCode {
         FAILED_LOGIN,
         FAILED_FETCH,
         FAILED_MMQUEUE,
-        MATCH_START
+        MATCH_START,
+        MATCH_UPDATE
     };
 }

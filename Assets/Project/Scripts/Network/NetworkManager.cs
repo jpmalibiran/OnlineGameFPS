@@ -52,7 +52,7 @@ namespace FPSNetworkCode {
         private void Awake() {
             dataQueue = new Queue<string>();
             clientUsername = "default";
-            FPSNetworkCode.NetworkManager hi = GameObject.Find("NetworkManager").GetComponent<FPSNetworkCode.NetworkManager>();
+            //FPSNetworkCode.NetworkManager hi = GameObject.Find("NetworkManager").GetComponent<FPSNetworkCode.NetworkManager>();
         }
 
         // Start is called before the first frame update
@@ -325,64 +325,12 @@ namespace FPSNetworkCode {
                 }
                 dataQueue.Dequeue();
             }
-            //else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.JOINED_LOBBY) { //TODO untested
-            //    isInLobby = true;
-            //    Debug.Log("[Notice] You have joined a lobby.");
-            //    if (consoleRef) {
-            //        consoleRef.UpdateChat("[Console] You have joined a lobby.");
-            //    }
-            //    LobbyUpdate lobbyClientList = JsonUtility.FromJson<LobbyUpdate>(dataQueue.Peek());
+            else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.MATCH_UPDATE) {
+                if (bDebug){ Debug.Log("[Notice] Received Match Update."); }
 
-            //    //TODO untested
-            //    //Save client info. just username and id for now
+                dataQueue.Dequeue();
+            }
 
-            //    foreach (LobbyClient client in lobbyClientList.clients) {
-            //        PlayerData newPlayerData = new PlayerData();
-            //        newPlayerData.username = client.username;
-            //        clientDataDict.Add(client.id, newPlayerData);
-            //        lobbyPlayerIDList.Add(client.id);
-            //    }
-
-            //    dataQueue.Dequeue();
-
-            //    PrintLobbyClients(); //TEMP
-            //}
-            //else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.LEAVE_LOBBY) {
-            //    isInLobby = false;
-            //    Debug.Log("[Notice] You have left the lobby.");
-            //    if (consoleRef) {
-            //        consoleRef.UpdateChat("[Console] You have left the lobby.");
-            //    }
-            //    dataQueue.Dequeue();
-            //}
-            //else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.UPDATE_LOBBY) { //TODO untested
-            //    LobbyNewClientUpdate newClient;
-            //    isInLobby = false;
-
-            //    newClient = JsonUtility.FromJson<LobbyNewClientUpdate>(dataQueue.Peek());
-
-            //    Debug.Log("[Notice] A new client has joined the lobby.");
-            //    if (consoleRef) {
-            //        consoleRef.UpdateChat("[Console] " + newClient.username + " has joined the lobby.");
-            //    }
-                
-            //    PlayerData newPlayerData = new PlayerData();
-            //    newPlayerData.username = newClient.username;
-            //    clientDataDict.Add(newClient.id, newPlayerData);
-            //    lobbyPlayerIDList.Add(newClient.id);
-            //    dataQueue.Dequeue();
-
-            //    PrintLobbyClients(); //TEMP
-            //}
-            //else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.CREATED_LOBBY) {
-            //    isInLobby = true;
-            //    Debug.Log("[Notice] A new lobby has been created.");
-            //    if (consoleRef) {
-            //        consoleRef.UpdateChat("[Console] A new lobby has been created.");
-            //    }
-
-            //    dataQueue.Dequeue();
-            //}
         }
 
         public void ConnectToServer() {
@@ -393,7 +341,6 @@ namespace FPSNetworkCode {
                 }
                 return;
             }
-
             NetworkSetUp();
         }
 
