@@ -146,10 +146,10 @@ namespace FPSNetworkCode {
             }
             else if (getMsg == "/join any" || getMsg == "/join matchmaking" || getMsg == "/join") {
                 UpdateChat("[Console] Joining matchmaking... ");
-                netManagerRef.CommenceMatchmaking();
+                netManagerRef.QueueMatchMaking();
             }
             else if (getMsg == "/leave" || getMsg == "/leave lobby") {
-                netManagerRef.LeaveCurrentLobby();
+                netManagerRef.LeaveMatchMakingQueue();
             }
             else if (getMsg == "/disconnect") {
                 netManagerRef.Disconnect();
