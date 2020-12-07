@@ -78,24 +78,63 @@ namespace FPSNetworkCode {
         }
     }
 
-    [Serializable]
-    public class LobbyUpdate {
-        public Flag flag;
-        public LobbyClient[] clients;
-    }
-
-    [Serializable]
-    public class LobbyClient {
-        public string username;
-        public int id;
-    }
-
-    [Serializable]
-    public class LobbyNewClientUpdate {
+    [Serializable] 
+    public class ProfileDataRequest {
         public Flag flag;
         public string username;
-        public int id;
+
+        public ProfileDataRequest(string targetUsername){
+            flag = Flag.FETCH_ACCOUNT;
+            username = targetUsername;
+        }
     }
+
+    [Serializable] 
+    public class ProfileData {
+        public Flag flag;
+        public string username;
+        public int mmr;
+        public int totalGames;
+        public int gamesWon;
+        public int gamesLost;
+        public int kills;
+        public int deaths;
+        public int progress;
+        //Note: use the kills and deaths value to determine k:d ratio
+
+        public ProfileData() {
+            flag = Flag.FETCH_ACCOUNT;
+            username = "default";
+            mmr = 1500;
+            progress = 0;
+        }
+
+        public ProfileData(string insertUsername, int insertMMR, int insertProgress) {
+            flag = Flag.FETCH_ACCOUNT;
+            username = insertUsername;
+            mmr = insertMMR;
+            progress = insertProgress;
+        }
+    }
+
+    //[Serializable]
+    //public class LobbyUpdate {
+    //    public Flag flag;
+    //    public LobbyClient[] clients;
+    //}
+
+    //[Serializable]
+    //public class LobbyClient {
+    //    public string username;
+    //    public int id;
+    //}
+
+    //[Serializable]
+    //public class LobbyNewClientUpdate {
+    //    public Flag flag;
+    //    public string username;
+    //    public int id;
+    //}
 
     [Serializable]
     public class PlayerData {
@@ -108,6 +147,5 @@ namespace FPSNetworkCode {
         public int health;
         //public int bullets;
         //TODO enum gun
-
     }
 }

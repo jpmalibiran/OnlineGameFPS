@@ -99,87 +99,99 @@ namespace FPSNetworkCode {
             if (getMsg == "/connect") {
                 UpdateChat("[Console] Connecting to server... ");
                 netManagerRef.ConnectToServer();
+                return true;
             }
-            else if (getMsg.Substring(1,6).ToLower() == "login ") {
-                //Get username from syntax. its the first word after '/login '
-                for (int i = 7; i < getMsg.Length; i++) {
-                    if (getMsg[i] == ' ') {
-                        passwordStartIndex = i + 1;
-                        break;
+
+            if (getMsg.Length > 7) {
+                if (getMsg.Substring(1,6).ToLower() == "login ") {
+                    //Get username from syntax. its the first word after '/login '
+                    for (int i = 7; i < getMsg.Length; i++) {
+                        if (getMsg[i] == ' ') {
+                            passwordStartIndex = i + 1;
+                            break;
+                        }
+                        usernameHolder = usernameHolder + getMsg[i];
                     }
-                    usernameHolder = usernameHolder + getMsg[i];
-                }
 
-                if (passwordStartIndex == -1 || passwordStartIndex > getMsg.Length) {
-                    UpdateChat("[Console] Invalid syntax.");
-                    return false;
-                }
-
-                //Get password from syntax. its the word after the username
-                for (int i = passwordStartIndex; i < getMsg.Length; i++) {
-                    passwordHolder = passwordHolder + getMsg[i];
-                }
-
-                netManagerRef.AttemptLogin(usernameHolder, passwordHolder);
-            }
-            else if (getMsg.Substring(1,9).ToLower() == "register ") {
-                //Get username from syntax. its the first word after '/login '
-                for (int i = 10; i < getMsg.Length; i++) {
-                    if (getMsg[i] == ' ') {
-                        passwordStartIndex = i + 1;
-                        break;
-                    }
-                    usernameHolder = usernameHolder + getMsg[i];
-                }
-
-                if (passwordStartIndex == -1 || passwordStartIndex >= getMsg.Length) {
-                    UpdateChat("[Console] Invalid syntax.");
-                    return false;
-                }
-
-                //Get password from syntax. its the word after the username
-                for (int i = passwordStartIndex; i < getMsg.Length; i++) {
-                    passwordHolder = passwordHolder + getMsg[i];
-                }
-
-                netManagerRef.AttemptAccountCreation(usernameHolder, passwordHolder);
-            }
-            else if (getMsg == "/join any" || getMsg == "/join matchmaking" || getMsg == "/join") {
-                UpdateChat("[Console] Joining matchmaking... ");
-                netManagerRef.CommenceMatchmaking();
-            }
-            else if (getMsg == "/leave" || getMsg == "/leave lobby") {
-                netManagerRef.LeaveCurrentLobby();
-            }
-            else if (getMsg == "/disconnect") {
-                netManagerRef.Disconnect();
-            }
-            else if (getMsg.Substring(0,5) == "/join " && getMsg.Length == 7) { //read first 6 letters, check if it is a join command
-
-                switch (getMsg.Substring(6)) {
-                    case "1":
-
-                        break;
-                    case "2":
-
-                        break;
-                    case "3":
-
-                        break;
-                    case "4":
-
-                        break;
-                    default:
+                    if (passwordStartIndex == -1 || passwordStartIndex > getMsg.Length) {
+                        UpdateChat("[Console] Invalid syntax.");
                         return false;
+                    }
+
+                    //Get password from syntax. its the word after the username
+                    for (int i = passwordStartIndex; i < getMsg.Length; i++) {
+                        passwordHolder = passwordHolder + getMsg[i];
+                    }
+
+                    netManagerRef.AttemptLogin(usernameHolder, passwordHolder);
+                    return true;
                 }
             }
-            else {
-                Debug.Log("[Notice] Invalid Command. ");
-                UpdateChat("[Console] Invalid Command. ");
-                return false;
+
+            if (getMsg.Length > 9){
+                if (getMsg.Substring(1,9).ToLower() == "register ") {
+                    //Get username from syntax. its the first word after '/login '
+                    for (int i = 10; i < getMsg.Length; i++) {
+                        if (getMsg[i] == ' ') {
+                            passwordStartIndex = i + 1;
+                            break;
+                        }
+                        usernameHolder = usernameHolder + getMsg[i];
+                    }
+
+                    if (passwordStartIndex == -1 || passwordStartIndex >= getMsg.Length) {
+                        UpdateChat("[Console] Invalid syntax.");
+                        return false;
+                    }
+
+                    //Get password from syntax. its the word after the username
+                    for (int i = passwordStartIndex; i < getMsg.Length; i++) {
+                        passwordHolder = passwordHolder + getMsg[i];
+                    }
+
+                    netManagerRef.AttemptAccountCreation(usernameHolder, passwordHolder);
+                    return true;
+                }
             }
-            
-            return true;
+
+            if (getMsg.Length > 7){
+                if (getMsg.Substring(1,6).ToLower() == "fetch ") {
+                    if (getMsg.Substring(7,14).ToLower() == "profile ") {
+                        for (int i = 15; i < getMsg.Length; i++) {
+                            if (getMsg[i] == ' ') {
+                                passwordStartIndex = i + 1;
+                                break;
+                            }
+                            usernameHolder = usernameHolder + getMsg[i];
+                        }
+                        netManagerRef.RequestProfileData(usernameHolder);
+                    }
+                    else if (getMsg.Substring(7,14).ToLower() == "clientdata ") {
+                        //TODO
+                    }
+                    return true;
+                }
+            }
+
+            if (getMsg == "/join any" || getMsg == "/join matchmaking" || getMsg == "/join") {
+                UpdateChat("[Console] Joining matchmaking... ");
+                netManagerRef.QueueMatchMaking();
+                return true;
+            }
+
+            if (getMsg == "/leave" || getMsg == "/leave lobby") {
+                netManagerRef.LeaveMatchMakingQueue();
+                return true;
+            }
+
+            if (getMsg == "/disconnect") {
+                netManagerRef.Disconnect();
+                return true;
+            }
+
+            Debug.Log("[Notice] Invalid Command. ");
+            UpdateChat("[Console] Invalid Command. ");
+            return false;
         }
 
         public void ClearLocalChatBox() {
