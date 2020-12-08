@@ -9,9 +9,12 @@ public class LoginController : MonoBehaviour
 {
     public GameObject LoginButton, LoginButtonCover, UserLoginText, PasswordText, TitleText, 
                       HeadingPanel, HeadingText, LoginButtonText, FadeoutPanel, RegisterButton,
-                      RegisterName, RegisterPassword, RegisterLocation, RegisterAge, SubmitCoverButton, SubmitButton;
-    private int fakeLoginCount;
+                      RegisterName, RegisterPassword, RegisterLocation, RegisterAge,
+                      SubmitCoverButton, SubmitButton, ErrorMessageBacking, ErrorMessageText;
+    private int fakeLoginCount, errorCount;
     public bool loggingIn, loggedIn, Registering;
+    public bool loginConfirmed, loginFailed;
+    public Color cError, cConfirm;
     // Start is called before the first frame update
     void Start()
     {
@@ -57,14 +60,37 @@ public class LoginController : MonoBehaviour
         if(loggingIn)
         {
             
-            fakeLoginCount++;
-            if(fakeLoginCount > 1800)
+            
+            if(loginConfirmed)
             {
+                fakeLoginCount++;
+                if (fakeLoginCount > 180)
+                { 
                 LoggedIn();
                 loggingIn = false;
                 fakeLoginCount = 0;
+                }
+                           
             }
         }
+
+        if (loginFailed)
+        {
+            errorCount++;
+            if(errorCount > 250)
+            {
+                loginFailed = false;
+                errorCount = 0;
+                ErrorMessageBacking.SetActive(false);
+                ErrorMessageText.SetActive(false);
+            }
+        }
+
+    }
+
+    void LoginConfirmed()
+    {
+        loginConfirmed = true;
     }
 
     public void LoggingIn()
@@ -128,13 +154,40 @@ public class LoginController : MonoBehaviour
         RegisterAge.SetActive(false);
         SubmitCoverButton.SetActive(false);
         SubmitButton.SetActive(false);
-
         Registering = false;
     }
-
-    public void CompleteRegistration()
+    
+    public void UserExists()
     {
+        ErrorMessageBacking.SetActive(true);
+        ErrorMessageText.SetActive(true);
+        ErrorMessageText.GetComponent<TextMeshProUGUI>().text = "Account Already Exists";
+        ErrorMessageBacking.GetComponent<Image>().color = cError;
+    }
 
+    public void AccountCreated()
+    {
+        ErrorMessageBacking.SetActive(true);
+        ErrorMessageText.SetActive(true);
+        ErrorMessageText.GetComponent<TextMeshProUGUI>().text = "Registration Completed";
+        ErrorMessageBacking.GetComponent<Image>().color = cConfirm;
+    }
 
-    }    
+    public void IncorrectLogin()
+    {
+        loggingIn = false;
+        LoginButtonText.GetComponent<TextMeshProUGUI>().fontSize = 23.28f;
+        LoginButtonText.GetComponent<TextMeshProUGUI>().text = "Connect";
+        ErrorMessageBacking.SetActive(true);
+        ErrorMessageText.SetActive(true);
+        ErrorMessageText.GetComponent<TextMeshProUGUI>().text = "Incorrect Login or Password";
+        ErrorMessageBacking.GetComponent<Image>().color = cError;
+    }
+
+    public void ConfirmServerLogin()
+    {
+        loginConfirmed = true;
+    }
+  
+
 }
