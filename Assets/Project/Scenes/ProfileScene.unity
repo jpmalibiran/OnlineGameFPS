@@ -1403,7 +1403,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -90.999985, y: -137.99998}
+  m_AnchoredPosition: {x: -91, y: -138}
   m_SizeDelta: {x: -584.8701, y: -425.41025}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &669711436
@@ -3767,7 +3767,7 @@ RectTransform:
   m_GameObject: {fileID: 1639602776}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.20039062, y: 1, z: 1}
+  m_LocalScale: {x: 0, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 669711434}
   m_RootOrder: 1
@@ -4724,7 +4724,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Matches  9999
+  m_text: Matches  0
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3229d9b74c6a4ef469f6abb6dc8b4f78, type: 2}
   m_sharedMaterial: {fileID: 2902127309131426909, guid: 3229d9b74c6a4ef469f6abb6dc8b4f78, type: 2}
@@ -4827,9 +4827,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 2090256841}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c60f275870de4054f9f6c1b37d5d58fa, type: 3}
+  m_Script: {fileID: 11500000, guid: 698edad732648cd429ad09482ca6a6b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ProfileManager: {fileID: 0}
+  Title: {fileID: 1703610342}
+  Kills: {fileID: 820106916}
+  Deaths: {fileID: 947269630}
+  Matches: {fileID: 1719423695}
+  Ratio: {fileID: 501998027}
+  PrestigeExpBar: {fileID: 1639602776}
+  PrestigeText: {fileID: 1609475889}
 --- !u!4 &2090256843
 Transform:
   m_ObjectHideFlags: 0

@@ -8,7 +8,7 @@ public class SelectionController : MonoBehaviour
 {
     public GameObject QuickPlayButton, BackButton, ProfileButton, HeadingText, FadeoutPaneltoGame, FadeoutPaneltoMain,
                        MusicObject;
-    public bool FindingMatch;
+    public bool FindingMatch, FoundMatch;
     private int fakeMatchmakingCount;
     // Start is called before the first frame update
     void Start()
@@ -31,15 +31,17 @@ public class SelectionController : MonoBehaviour
                 }
             }
 
-            if(fakeMatchmakingCount > 1600)
-            {
-                MatchmakingComplete();
-                FindingMatch = false;
-                fakeMatchmakingCount = 0;
-            }
-
         }
-        
+
+        if(FoundMatch)
+        {
+            HeadingText.GetComponent<TextMeshProUGUI>().text = "Match Found, Prepare for Battle";
+        }
+
+        if(FoundMatch && fakeMatchmakingCount > 1150)
+        {
+            FadeoutPaneltoGame.SetActive(true);
+        }
     }
 
 
@@ -66,8 +68,7 @@ public class SelectionController : MonoBehaviour
 
     public void MatchmakingComplete()
     {
-        FadeoutPaneltoGame.SetActive(true);
-
+        FoundMatch = true;  
     }
 
     public void MoveToGame()

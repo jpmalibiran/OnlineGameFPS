@@ -2320,7 +2320,7 @@ GameObject:
   - component: {fileID: 1571374353}
   - component: {fileID: 1571374352}
   m_Layer: 5
-  m_Name: FadeOutPanel_toGame (1)
+  m_Name: FadeOutPanel to profile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3071,6 +3071,7 @@ MonoBehaviour:
   FadeoutPaneltoMain: {fileID: 503790092}
   MusicObject: {fileID: 0}
   FindingMatch: 0
+  FoundMatch: 0
 --- !u!4 &2000172934
 Transform:
   m_ObjectHideFlags: 0

@@ -4712,6 +4712,9 @@ MonoBehaviour:
   loggedIn: 0
   Registering: 0
   loginConfirmed: 0
+  loginFailed: 0
+  cError: {r: 1, g: 0.1462264, b: 0.1462264, a: 1}
+  cConfirm: {r: 0.21052866, g: 0.7830189, b: 0.37488997, a: 1}
 --- !u!1 &1155097295
 GameObject:
   m_ObjectHideFlags: 0
