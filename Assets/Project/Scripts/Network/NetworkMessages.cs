@@ -117,24 +117,12 @@ namespace FPSNetworkCode {
         }
     }
 
-    //[Serializable]
-    //public class LobbyUpdate {
-    //    public Flag flag;
-    //    public LobbyClient[] clients;
-    //}
-
-    //[Serializable]
-    //public class LobbyClient {
-    //    public string username;
-    //    public int id;
-    //}
-
-    //[Serializable]
-    //public class LobbyNewClientUpdate {
-    //    public Flag flag;
-    //    public string username;
-    //    public int id;
-    //}
+    //From Server to client only
+    [Serializable] 
+    public class DroppedPlayer {
+        public Flag flag;
+        public string username;
+    }
 
     [Serializable]
     public class PlayerData {
