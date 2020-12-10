@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 using UnityEngine;
 
 public class ProfileMgr : MonoBehaviour
@@ -36,5 +37,10 @@ public class ProfileMgr : MonoBehaviour
         _kdright = kdRight;
         _level = level;
         _exp = exp;
+    }
+
+    public void MoveToEndGameScene()
+    {
+        SceneManager.LoadScene(5);
     }
 }
