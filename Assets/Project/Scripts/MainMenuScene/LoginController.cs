@@ -15,10 +15,18 @@ public class LoginController : MonoBehaviour
     public bool loggingIn, loggedIn, Registering;
     public bool loginConfirmed, loginFailed;
     public Color cError, cConfirm;
+
+    private FPSNetworkCode.NetworkManager netManager;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        if (GameObject.Find("NetworkManager")) 
+        {
+            netManager = GameObject.Find("NetworkManager").GetComponent<FPSNetworkCode.NetworkManager>();
+            netManager.ConnectToServer();
+        }
+
     }
 
     // Update is called once per frame
@@ -98,6 +106,14 @@ public class LoginController : MonoBehaviour
         loggingIn = true;
         LoginButtonText.GetComponent<TextMeshProUGUI>().fontSize = 15.0f;
         LoginButtonText.GetComponent<TextMeshProUGUI>().text = "Connecting...";
+
+        if (netManager) {
+            if (netManager.IsConnectedToServer()) 
+            {
+                netManager.AttemptLogin(UserLoginText.GetComponent<TMP_InputField>().text, PasswordText.GetComponent<TMP_InputField>().text);
+            }
+        }
+
     }
 
     public void LoggedIn()
@@ -187,6 +203,7 @@ public class LoginController : MonoBehaviour
     public void ConfirmServerLogin()
     {
         loginConfirmed = true;
+        SceneManager.LoadScene(2);
     }
   
 

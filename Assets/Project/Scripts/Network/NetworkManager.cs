@@ -53,10 +53,10 @@ namespace FPSNetworkCode {
         private string clientPort;
         private string clientUsername;
 
-        private bool isConnected = false;
-        private bool isInMatch = false;
-        private bool isLoggedIn = false;
-        private bool isInMMQueue = false;
+        [SerializeField] private bool isConnected = false;
+        [SerializeField] private bool isInMatch = false;
+        [SerializeField] private bool isLoggedIn = false;
+        [SerializeField] private bool isInMMQueue = false;
 
         private void Awake() {
             dataQueue = new Queue<string>();
@@ -71,7 +71,11 @@ namespace FPSNetworkCode {
 
         private void OnDestroy() {
             if (bDebug){ Debug.Log("[Notice] Cleaning up UDP Client...");}
-            udp.Dispose();
+
+            if (isConnected) {
+                udp.Dispose();
+            }
+            
             if (dataQueue.Count > 0) {
                 dataQueue.Clear();
             }
@@ -219,7 +223,7 @@ namespace FPSNetworkCode {
                 if (consoleRef) {
                     consoleRef.UpdateChat("[Console] Client connection established with server.");
                 }
-                Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene() + "'.");
+                Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene().name + "'.");
                 dataQueue.Dequeue();
             }
             else if (!isConnected) {
@@ -233,13 +237,14 @@ namespace FPSNetworkCode {
                 if (consoleRef) {
                     consoleRef.UpdateChat("[Console] Account created successfully.");
                 }
-                Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene() + "'.");
+                Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene().name + "'.");
 
                 if (loginCtrlRef) {
                     loginCtrlRef.AccountCreated();
                 }
                 else if (GameObject.Find("Canvas/Login Controller")){
                     loginCtrlRef = GameObject.Find("Canvas/Login Controller").GetComponent<LoginController>();
+                    loginCtrlRef.AccountCreated();
                 }
 
                 dataQueue.Dequeue();
@@ -256,6 +261,7 @@ namespace FPSNetworkCode {
                 }
                 else if (GameObject.Find("Canvas/Login Controller")){
                     loginCtrlRef = GameObject.Find("Canvas/Login Controller").GetComponent<LoginController>();
+                    loginCtrlRef.UserExists();
                 }
 
                 dataQueue.Dequeue();
@@ -270,13 +276,14 @@ namespace FPSNetworkCode {
                 if (consoleRef) {
                     consoleRef.UpdateChat("[Console] Successfully logged in.");
                 }
-                Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene() + "'.");
+                Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene().name + "'.");
 
                 if (loginCtrlRef) {
                     loginCtrlRef.ConfirmServerLogin();
                 }
                 else if (GameObject.Find("Canvas/Login Controller")){
                     loginCtrlRef = GameObject.Find("Canvas/Login Controller").GetComponent<LoginController>();
+                    loginCtrlRef.ConfirmServerLogin();
                 }
 
                 dataQueue.Dequeue();
@@ -293,6 +300,7 @@ namespace FPSNetworkCode {
                 }
                 else if (GameObject.Find("Canvas/Login Controller")){
                     loginCtrlRef = GameObject.Find("Canvas/Login Controller").GetComponent<LoginController>();
+                    loginCtrlRef.IncorrectLogin();
                 }
 
                 dataQueue.Dequeue();
@@ -329,7 +337,7 @@ namespace FPSNetworkCode {
                 if (consoleRef) {
                     consoleRef.UpdateChat("[Console] You have joined matchmaking queue.");
                 }
-                Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene() + "'.");
+                Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene().name + "'.");
                 dataQueue.Dequeue();
             }
             else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.FAILED_MMQUEUE) {
@@ -348,7 +356,7 @@ namespace FPSNetworkCode {
                 if (consoleRef) {
                     consoleRef.UpdateChat("[Console] The match is starting...");
                 }
-                Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene() + "'.");
+                Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene().name + "'.");
 
                 if (selectCtrlRef) {
                     selectCtrlRef.MatchmakingComplete();
@@ -373,7 +381,7 @@ namespace FPSNetworkCode {
                 if (consoleRef) {
                     consoleRef.UpdateChat("[Console] Retrieved profile data.");
                 }
-                Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene() + "'.");
+                Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene().name + "'.");
 
                 if (profileMgrRef) {
                     profileMgrRef.SetProfile("default",1500,0,0,0,0,0,0,0,0,0,0); //TODO TEMP
@@ -392,7 +400,7 @@ namespace FPSNetworkCode {
             else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.MATCH_UPDATE) {
                 if (bDebug){ Debug.Log("[Notice] Received Match Update."); }
 
-                Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene() + "'.");
+                Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene().name + "'.");
                 dataQueue.Dequeue();
             }
 
@@ -407,6 +415,10 @@ namespace FPSNetworkCode {
                 return;
             }
             NetworkSetUp();
+        }
+
+        public bool IsConnectedToServer() {
+            return isConnected;
         }
 
         public void AttemptAccountCreation(string username, string password) {
