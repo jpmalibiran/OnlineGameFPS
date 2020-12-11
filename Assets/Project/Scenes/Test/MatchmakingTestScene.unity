@@ -1086,6 +1086,9 @@ MonoBehaviour:
   showPing: 
   showIfConnected: 0
   consoleRef: {fileID: 176109175}
+  loginCtrlRef: {fileID: 0}
+  selectCtrlRef: {fileID: 0}
+  profileMgrRef: {fileID: 0}
   remoteEndpointAddress: localhost
   remoteEndpointPort: 12345
 --- !u!4 &1977101644

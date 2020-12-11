@@ -124,6 +124,7 @@ namespace FPSNetworkCode {
         public string username;
     }
 
+    //Not a network message
     [Serializable]
     public class PlayerData {
         public Transform objReference;
@@ -135,5 +136,69 @@ namespace FPSNetworkCode {
         public int health;
         //public int bullets;
         //TODO enum gun
+    }
+
+    //From client or server
+    [Serializable]
+    public class MoveUpdateData {
+        public Flag flag;
+        public string username;
+        public Coordinates position;
+        public Orientation orientation;
+
+        public MoveUpdateData(string getUsername, float getPosX, float getPosY, float getPosZ, float getYaw, float getPitch) {
+            flag = Flag.MATCH_UPDATE;
+            username = getUsername;
+            position = new Coordinates(getPosX, getPosY, getPosZ);
+            orientation = new Orientation(getYaw, getPitch);
+        }
+    }
+    
+    [Serializable]
+    public class HitScanData {
+        public Flag flag;
+        public string usernameOrigin;
+        public string usernameTarget;
+        public Coordinates hitPosition;
+        public int damage;
+        public bool isHit; //might not be needed since we have class MissShotsData
+    }
+
+    [Serializable]
+    public class MissShotsData {
+        public Flag flag;
+        public string usernameOrigin;
+        public Coordinates hitPosition;
+    }
+
+    [Serializable]
+    public class DirectHitData {
+        public Flag flag;
+        public string usernameOrigin;
+        public string usernameTarget;
+    }
+
+    [Serializable]
+    public class Coordinates {
+        public float x;
+        public float y;
+        public float z;
+
+        public Coordinates(float getX, float getY, float getZ) {
+            x = getX;
+            y = getY;
+            z = getZ;
+        }
+    }
+
+    [Serializable]
+    public class Orientation {
+        public float yaw;
+        public float pitch;
+
+        public Orientation(float getYaw, float getPitch) {
+            yaw = getYaw;
+            pitch = getPitch;
+        }
     }
 }

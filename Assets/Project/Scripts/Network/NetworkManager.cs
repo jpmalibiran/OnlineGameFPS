@@ -6,11 +6,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using System;
 using System.Text;
 using System.Net.Sockets;
 using System.Net;
 using FPSNetworkCode;
+using FPSGameplayCode;
 
 namespace FPSNetworkCode {
 
@@ -29,13 +31,20 @@ namespace FPSNetworkCode {
 
         [Header("References")]
         [SerializeField] private ConsoleManager consoleRef;
+        [SerializeField] private LoginController loginCtrlRef;
+        [SerializeField] private SelectionController selectCtrlRef;
+        [SerializeField] private ProfileMgr profileMgrRef;
+
+        [SerializeField] private GameObject playerPrefab; 
+        [SerializeField] private GameObject remotePlayerPrefab; 
+        [SerializeField] private GameObject remotePlayerGhostPrefab; 
 
         [Header("UDP Settings")] //These values must be filled in the inspector
         [SerializeField] private string remoteEndpointAddress;
         [SerializeField] private int remoteEndpointPort;
 
         //private Dictionary<int, Transform> playerReferences; //Contains references of gameObjects as Transform representing the characters of clients connected to an online match
-        private Dictionary<int, PlayerData> clientDataDict;
+        private Dictionary<string, PlayerData> clientDataDict;
         private List<int> lobbyPlayerIDList;
         private Queue<string> dataQueue; //data received from the server is queued so they are only processed once chronologically
 
@@ -106,7 +115,7 @@ namespace FPSNetworkCode {
             if (bDebug){ Debug.Log("[Notice] Setting up client...");}
 
             udp = new UdpClient();
-            clientDataDict = new Dictionary<int, PlayerData>();
+            clientDataDict = new Dictionary<string, PlayerData>();
             lobbyPlayerIDList = new List<int>();
             dataQueue = new Queue<string>();
             connectMsg = new ConnectNetMsg(GameVersion.GetVersion(), clientUsername); 
@@ -205,10 +214,12 @@ namespace FPSNetworkCode {
             if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.CONNECT) {
                 isConnected = true;
                 showIfConnected = isConnected;
+
                 if (bDebug) { Debug.Log("[Notice] Client connection established with " + udp.Client.RemoteEndPoint.ToString() + "."); }
                 if (consoleRef) {
                     consoleRef.UpdateChat("[Console] Client connection established with server.");
                 }
+                Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene() + "'.");
                 dataQueue.Dequeue();
             }
             else if (!isConnected) {
@@ -222,6 +233,15 @@ namespace FPSNetworkCode {
                 if (consoleRef) {
                     consoleRef.UpdateChat("[Console] Account created successfully.");
                 }
+                Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene() + "'.");
+
+                if (loginCtrlRef) {
+                    loginCtrlRef.AccountCreated();
+                }
+                else if (GameObject.Find("Canvas/Login Controller")){
+                    loginCtrlRef = GameObject.Find("Canvas/Login Controller").GetComponent<LoginController>();
+                }
+
                 dataQueue.Dequeue();
             }
             else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.FAILED_ACCOUNT_CREATION) {
@@ -230,11 +250,19 @@ namespace FPSNetworkCode {
                 if (consoleRef) {
                     consoleRef.UpdateChat("[Console] Failed to create account; Invalid username or password.");
                 }
+
+                if (loginCtrlRef) {
+                    loginCtrlRef.UserExists();
+                }
+                else if (GameObject.Find("Canvas/Login Controller")){
+                    loginCtrlRef = GameObject.Find("Canvas/Login Controller").GetComponent<LoginController>();
+                }
+
                 dataQueue.Dequeue();
             }
             else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.LOGIN_ACCOUNT) {
                 isLoggedIn = true;
-
+                GameStateManager.SetState(State.GAMESELECTSCENE);
                 if (bDebug){ Debug.Log("[Notice] Client has successfully logged in."); }
 
                 //TODO: Exit login screen; Load next scene 
@@ -242,6 +270,15 @@ namespace FPSNetworkCode {
                 if (consoleRef) {
                     consoleRef.UpdateChat("[Console] Successfully logged in.");
                 }
+                Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene() + "'.");
+
+                if (loginCtrlRef) {
+                    loginCtrlRef.ConfirmServerLogin();
+                }
+                else if (GameObject.Find("Canvas/Login Controller")){
+                    loginCtrlRef = GameObject.Find("Canvas/Login Controller").GetComponent<LoginController>();
+                }
+
                 dataQueue.Dequeue();
             }
             else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.FAILED_LOGIN) {
@@ -250,6 +287,14 @@ namespace FPSNetworkCode {
                 if (consoleRef) {
                     consoleRef.UpdateChat("[Console] Login failed; Invalid username or password.");
                 }
+
+                if (loginCtrlRef) {
+                    loginCtrlRef.IncorrectLogin();
+                }
+                else if (GameObject.Find("Canvas/Login Controller")){
+                    loginCtrlRef = GameObject.Find("Canvas/Login Controller").GetComponent<LoginController>();
+                }
+
                 dataQueue.Dequeue();
             }
             else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.PING) { //Received a ping from the server
@@ -278,11 +323,13 @@ namespace FPSNetworkCode {
                 return;
             }
             else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.QUEUE_MATCHMAKING) {
+                isInMMQueue = true;
                 if (bDebug){ Debug.Log("[Notice] Received flag from server: QUEUE_MATCHMAKING."); }
 
                 if (consoleRef) {
                     consoleRef.UpdateChat("[Console] You have joined matchmaking queue.");
                 }
+                Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene() + "'.");
                 dataQueue.Dequeue();
             }
             else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.FAILED_MMQUEUE) {
@@ -294,14 +341,25 @@ namespace FPSNetworkCode {
                 dataQueue.Dequeue();
             }
             else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.MATCH_START) {
+                isInMatch = true;
+
                 if (bDebug){ Debug.Log("[Notice] Client's game match has started."); }
 
                 if (consoleRef) {
                     consoleRef.UpdateChat("[Console] The match is starting...");
                 }
+                Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene() + "'.");
+
+                if (selectCtrlRef) {
+                    selectCtrlRef.MatchmakingComplete();
+                }
+
                 dataQueue.Dequeue();
             }
             else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.LEAVE_MATCHMAKING) {
+                isInMMQueue = false;
+                isInMatch = false;
+
                 if (bDebug){ Debug.Log("[Notice] Client has left matchmaking queue."); }
 
                 if (consoleRef) {
@@ -315,6 +373,12 @@ namespace FPSNetworkCode {
                 if (consoleRef) {
                     consoleRef.UpdateChat("[Console] Retrieved profile data.");
                 }
+                Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene() + "'.");
+
+                if (profileMgrRef) {
+                    profileMgrRef.SetProfile("default",1500,0,0,0,0,0,0,0,0,0,0); //TODO TEMP
+                }
+
                 dataQueue.Dequeue();
             }
             else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.FAILED_FETCH) {
@@ -328,6 +392,7 @@ namespace FPSNetworkCode {
             else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.MATCH_UPDATE) {
                 if (bDebug){ Debug.Log("[Notice] Received Match Update."); }
 
+                Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene() + "'.");
                 dataQueue.Dequeue();
             }
 
@@ -474,26 +539,6 @@ namespace FPSNetworkCode {
             udp.Send(sendBytes, sendBytes.Length);
         }
 
-        //public void LeaveCurrentLobby() {
-        //    if (!isConnected) {
-        //        Debug.Log("[Notice] User not connected to server; aborting operation...");
-        //        if (consoleRef) {
-        //            consoleRef.UpdateChat("[Console] Cannot join matchmaking; user is not connected to server.");
-        //        }
-        //        return;
-        //    }
-
-        //    if (isInLobby == false) {
-        //        Debug.Log("[Notice] You are not in a game lobby; aborting operation...");
-        //        if (consoleRef) {
-        //            consoleRef.UpdateChat("[Console] You are not in a game lobby; aborting operation...");
-        //        }
-        //        return;
-        //    }
-
-        //    SendFlagMessage(Flag.LEAVE_LOBBY);
-        //}
-
         public void Disconnect() {
             if (!isConnected) {
                 Debug.LogWarning("[Notice] You are not connected to a server; aborting operation...");
@@ -503,8 +548,11 @@ namespace FPSNetworkCode {
                 return;
             }
 
-            udp.Dispose();
+            isInMMQueue = false;
+            isInMatch = false;
+            isLoggedIn = false;
             isConnected = false;
+            udp.Dispose();
             showIfConnected = isConnected;
             Debug.Log("[Notice] Disconnected from server.");
             if (consoleRef) {
@@ -513,25 +561,103 @@ namespace FPSNetworkCode {
         }
 
         //Prints the list of players that are in the same lobby as this client
-        public void PrintLobbyClients() {
+        //public void PrintLobbyClients() {
 
-            if (lobbyPlayerIDList.Count <= 0) {
-                Debug.Log("[Notice] Lobby player list is empty.");
+        //    if (lobbyPlayerIDList.Count <= 0) {
+        //        Debug.Log("[Notice] Lobby player list is empty.");
+        //        return;
+        //    }
+
+        //    Debug.Log("[Notice] Current Lobby player list:");
+        //    if (consoleRef) {
+        //        consoleRef.UpdateChat("[Notice] Current Lobby player list:");
+        //    }
+
+        //    foreach (int clientKey in lobbyPlayerIDList) {
+        //        Debug.Log("    - " + clientDataDict[clientKey].username + "(" + clientKey.ToString() + ")");
+        //        if (consoleRef) {
+        //            consoleRef.UpdateChat("    - " + clientDataDict[clientKey].username + "(" + clientKey.ToString() + ")");
+        //        }
+        //    }
+        //}
+
+        public void AddLocalPlayer(string getUsername, float getX, float getY, float getZ, float getYaw, float getPitch, int getHealth) {
+
+            if (!playerPrefab) {
+                Debug.LogError("[Error] Player prefab missing; cannot add local player.");
                 return;
             }
 
-            Debug.Log("[Notice] Current Lobby player list:");
-            if (consoleRef) {
-                consoleRef.UpdateChat("[Notice] Current Lobby player list:");
+            PlayerData newLocalPlayer = new PlayerData();
+            newLocalPlayer.objReference = Instantiate(playerPrefab, new Vector3(getX, getY, getZ), Quaternion.identity).transform;
+            newLocalPlayer.position = new Vector3(getX, getY, getZ);
+            newLocalPlayer.yaw = getYaw;
+            newLocalPlayer.pitch = getPitch;
+            newLocalPlayer.latency = 0;
+            newLocalPlayer.health = getHealth;
+            //clientUsername = getUsername;
+            clientDataDict.Add(getUsername, newLocalPlayer);
+        }
+
+        public void AddRemotePlayer(string getUsername, float getX, float getY, float getZ, float getYaw, float getPitch, int getHealth) {
+            PlayerData newRemotePlayer = new PlayerData();
+            newRemotePlayer.objReference = Instantiate(remotePlayerPrefab, new Vector3(getX, getY, getZ), Quaternion.identity).transform;
+            newRemotePlayer.position = new Vector3(getX, getY, getZ);
+            newRemotePlayer.yaw = getYaw;
+            newRemotePlayer.pitch = getPitch;
+            newRemotePlayer.latency = 0;
+            newRemotePlayer.health = getHealth;
+            clientDataDict.Add(getUsername, newRemotePlayer);
+        }
+
+        public void StartMatch() {
+
+            //Add local player
+
+            //Add remote player ghosts
+
+            //Add remote players
+
+            StartCoroutine(MoveUpdateRoutine());
+        }
+
+        private void UpdateServerWithPosition() {
+            if (!isInMatch) {
+                Debug.LogError("[Error] Client is not in a match; cannot send movement update to server.");
+                return;
             }
 
-            foreach (int clientKey in lobbyPlayerIDList) {
-                Debug.Log("    - " + clientDataDict[clientKey].username + "(" + clientKey.ToString() + ")");
-                if (consoleRef) {
-                    consoleRef.UpdateChat("    - " + clientDataDict[clientKey].username + "(" + clientKey.ToString() + ")");
-                }
-            }
+            string msgJson;
+            MoveUpdateData updateMsg;
+            Byte[] sendBytes;
+
+            updateMsg = new MoveUpdateData(clientUsername, clientDataDict[clientUsername].position.x, clientDataDict[clientUsername].position.y, clientDataDict[clientUsername].position.z, clientDataDict[clientUsername].yaw, clientDataDict[clientUsername].pitch);
+
+            msgJson = JsonUtility.ToJson(updateMsg);
+            sendBytes = Encoding.ASCII.GetBytes(msgJson);
+            udp.Send(sendBytes, sendBytes.Length);
         }
+
+        private void UpdateClientWithPosition(Transform getObj) {
+            clientDataDict[clientUsername].position = getObj.position;
+            clientDataDict[clientUsername].yaw = getObj.eulerAngles.y;
+            clientDataDict[clientUsername].pitch = getObj.eulerAngles.x;
+        }
+
+        IEnumerator MoveUpdateRoutine() {
+            yield return new WaitForSeconds(0.1f); //10 times a second
+
+            if (clientDataDict[clientUsername].objReference) {
+                UpdateClientWithPosition(clientDataDict[clientUsername].objReference);
+            }
+            else {
+                Debug.LogError("[Error] Client player reference missing; cannot update position.");
+            }
+            
+            UpdateServerWithPosition();
+        }
+
+
     }
 
 }

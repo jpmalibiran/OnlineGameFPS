@@ -31,6 +31,8 @@ namespace FPSNetworkCode {
         FAILED_MMQUEUE,
         MATCH_START,
         MATCH_UPDATE,
-        DROPPED_PLAYER
+        DROPPED_PLAYER,
+        HITSCAN_UPDATE,
+        MISSSHOT_UPDATE
     };
 }
