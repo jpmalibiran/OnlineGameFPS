@@ -34,10 +34,7 @@ namespace FPSNetworkCode {
         [SerializeField] private LoginController loginCtrlRef;
         [SerializeField] private SelectionController selectCtrlRef;
         [SerializeField] private ProfileMgr profileMgrRef;
-
-        [SerializeField] private GameObject playerPrefab; 
-        [SerializeField] private GameObject remotePlayerPrefab; 
-        [SerializeField] private GameObject remotePlayerGhostPrefab; 
+        [SerializeField] private GameplayManager gameMgrRef;
 
         [Header("UDP Settings")] //These values must be filled in the inspector
         [SerializeField] private string remoteEndpointAddress;
@@ -45,7 +42,7 @@ namespace FPSNetworkCode {
 
         //private Dictionary<int, Transform> playerReferences; //Contains references of gameObjects as Transform representing the characters of clients connected to an online match
         private Dictionary<string, PlayerData> clientDataDict;
-        private List<int> lobbyPlayerIDList;
+        //private List<int> lobbyPlayerIDList;
         private Queue<string> dataQueue; //data received from the server is queued so they are only processed once chronologically
 
         // Refers to *this* client
@@ -57,17 +54,12 @@ namespace FPSNetworkCode {
         [SerializeField] private bool isInMatch = false;
         [SerializeField] private bool isLoggedIn = false;
         [SerializeField] private bool isInMMQueue = false;
+        private bool loopMoveUpdate = false;
 
         private void Awake() {
             dataQueue = new Queue<string>();
             clientUsername = "default";
-            //FPSNetworkCode.NetworkManager hi = GameObject.Find("NetworkManager").GetComponent<FPSNetworkCode.NetworkManager>();
         }
-
-        // Start is called before the first frame update
-        //private void Start() {
-        //    NetworkSetUp();
-        //}
 
         private void OnDestroy() {
             if (bDebug){ Debug.Log("[Notice] Cleaning up UDP Client...");}
@@ -120,7 +112,7 @@ namespace FPSNetworkCode {
 
             udp = new UdpClient();
             clientDataDict = new Dictionary<string, PlayerData>();
-            lobbyPlayerIDList = new List<int>();
+            //lobbyPlayerIDList = new List<int>();
             dataQueue = new Queue<string>();
             connectMsg = new ConnectNetMsg(GameVersion.GetVersion(), clientUsername); 
 
@@ -349,7 +341,15 @@ namespace FPSNetworkCode {
                 dataQueue.Dequeue();
             }
             else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.MATCH_START) {
+                MoveUpdateData playersData = JsonUtility.FromJson<MoveUpdateData>(dataQueue.Peek());
                 isInMatch = true;
+
+                //Receive lobby data
+                foreach (PlayerMoveData player in playersData.players) {
+                    //Update player position and orientation data, and health 
+                    //Adds players to clientDataDict that aren't added yet
+                    UpdatePlayer(player.username, player.position.x, player.position.y, player.position.z, player.orientation.yaw, player.orientation.pitch, player.health);
+                }
 
                 if (bDebug){ Debug.Log("[Notice] Client's game match has started."); }
 
@@ -386,7 +386,7 @@ namespace FPSNetworkCode {
                 if (profileMgrRef) {
                     profileMgrRef.SetProfile("default",1500,0,0,0,0,0,0,0,0,0,0); //TODO TEMP
                 }
-
+                clientUsername = profileMgrRef._Username;
                 dataQueue.Dequeue();
             }
             else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.FAILED_FETCH) {
@@ -398,9 +398,18 @@ namespace FPSNetworkCode {
                 dataQueue.Dequeue();
             }
             else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.MATCH_UPDATE) {
+                MoveUpdateData playersData = JsonUtility.FromJson<MoveUpdateData>(dataQueue.Peek());
                 if (bDebug){ Debug.Log("[Notice] Received Match Update."); }
 
                 Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene().name + "'.");
+
+                //Receive lobby data
+                foreach (PlayerMoveData player in playersData.players) {
+                    //Update player position and orientation data, and health 
+                    //Adds players to clientDataDict that aren't added yet
+                    UpdatePlayer(player.username, player.position.x, player.position.y, player.position.z, player.orientation.yaw, player.orientation.pitch, player.health);
+                }
+
                 dataQueue.Dequeue();
             }
 
@@ -572,67 +581,48 @@ namespace FPSNetworkCode {
             }
         }
 
-        //Prints the list of players that are in the same lobby as this client
-        //public void PrintLobbyClients() {
+        public void AddPlayerCharRef(string getUsername, Transform charReference) {
+   
+            clientDataDict[getUsername].objReference = charReference;
+        }
 
-        //    if (lobbyPlayerIDList.Count <= 0) {
-        //        Debug.Log("[Notice] Lobby player list is empty.");
-        //        return;
-        //    }
-
-        //    Debug.Log("[Notice] Current Lobby player list:");
-        //    if (consoleRef) {
-        //        consoleRef.UpdateChat("[Notice] Current Lobby player list:");
-        //    }
-
-        //    foreach (int clientKey in lobbyPlayerIDList) {
-        //        Debug.Log("    - " + clientDataDict[clientKey].username + "(" + clientKey.ToString() + ")");
-        //        if (consoleRef) {
-        //            consoleRef.UpdateChat("    - " + clientDataDict[clientKey].username + "(" + clientKey.ToString() + ")");
-        //        }
-        //    }
-        //}
-
-        public void AddLocalPlayer(string getUsername, float getX, float getY, float getZ, float getYaw, float getPitch, int getHealth) {
-
-            if (!playerPrefab) {
-                Debug.LogError("[Error] Player prefab missing; cannot add local player.");
-                return;
+        public void UpdatePlayer(string getUsername, float getPosX, float getPosY, float getPosZ, float getYaw, float getPitch, int getHealth) {
+            if (clientDataDict.ContainsKey(getUsername)) {
+                clientDataDict[getUsername].position = new Vector3(getPosX, getPosY, getPosZ);
+                clientDataDict[getUsername].yaw = getYaw;
+                clientDataDict[getUsername].pitch = getPitch;
+                clientDataDict[getUsername].health = getHealth;
             }
+            else {
+                Debug.LogError("[Warning] clientDataDict does not contain username key; adding new player to clientDataDict.");
 
-            PlayerData newLocalPlayer = new PlayerData();
-            newLocalPlayer.objReference = Instantiate(playerPrefab, new Vector3(getX, getY, getZ), Quaternion.identity).transform;
-            newLocalPlayer.position = new Vector3(getX, getY, getZ);
-            newLocalPlayer.yaw = getYaw;
-            newLocalPlayer.pitch = getPitch;
-            newLocalPlayer.latency = 0;
-            newLocalPlayer.health = getHealth;
-            //clientUsername = getUsername;
-            clientDataDict.Add(getUsername, newLocalPlayer);
+                PlayerData newLocalPlayer = new PlayerData();
+                newLocalPlayer.position = new Vector3(getPosX, getPosY, getPosZ);
+                newLocalPlayer.yaw = getYaw;
+                newLocalPlayer.pitch = getPitch;
+                newLocalPlayer.latency = 0;
+                newLocalPlayer.health = getHealth;
+                clientDataDict.Add(getUsername, newLocalPlayer);
+            }
         }
 
-        public void AddRemotePlayer(string getUsername, float getX, float getY, float getZ, float getYaw, float getPitch, int getHealth) {
-            PlayerData newRemotePlayer = new PlayerData();
-            newRemotePlayer.objReference = Instantiate(remotePlayerPrefab, new Vector3(getX, getY, getZ), Quaternion.identity).transform;
-            newRemotePlayer.position = new Vector3(getX, getY, getZ);
-            newRemotePlayer.yaw = getYaw;
-            newRemotePlayer.pitch = getPitch;
-            newRemotePlayer.latency = 0;
-            newRemotePlayer.health = getHealth;
-            clientDataDict.Add(getUsername, newRemotePlayer);
-        }
+        public void GameSceneStart(GameplayManager gameMgr) {
+            gameMgrRef = gameMgr;
 
-        public void StartMatch() {
-
-            //Add local player
-
-            //Add remote player ghosts
-
-            //Add remote players
+            foreach (KeyValuePair<string, PlayerData> player in clientDataDict) {
+                //Instantiate player prefabs
+                if (player.Key == clientUsername) {
+                    gameMgrRef.SpawnPlayer(player.Key, true);
+                }
+                else {
+                    gameMgrRef.SpawnPlayer(player.Key, false);
+                }
+            }
 
             StartCoroutine(MoveUpdateRoutine());
         }
 
+        //Sends local client's position and orientation to server
         private void UpdateServerWithPosition() {
             if (!isInMatch) {
                 Debug.LogError("[Error] Client is not in a match; cannot send movement update to server.");
@@ -640,33 +630,60 @@ namespace FPSNetworkCode {
             }
 
             string msgJson;
-            MoveUpdateData updateMsg;
+            PlayerMoveData updateMsg;
             Byte[] sendBytes;
 
-            updateMsg = new MoveUpdateData(clientUsername, clientDataDict[clientUsername].position.x, clientDataDict[clientUsername].position.y, clientDataDict[clientUsername].position.z, clientDataDict[clientUsername].yaw, clientDataDict[clientUsername].pitch);
+            updateMsg = new PlayerMoveData(clientUsername, clientDataDict[clientUsername].position.x, clientDataDict[clientUsername].position.y, clientDataDict[clientUsername].position.z, clientDataDict[clientUsername].yaw, clientDataDict[clientUsername].pitch, clientDataDict[clientUsername].health);
 
             msgJson = JsonUtility.ToJson(updateMsg);
             sendBytes = Encoding.ASCII.GetBytes(msgJson);
             udp.Send(sendBytes, sendBytes.Length);
         }
 
+        //Updates clientDataDict with local client's position and orientation
         private void UpdateClientWithPosition(Transform getObj) {
             clientDataDict[clientUsername].position = getObj.position;
             clientDataDict[clientUsername].yaw = getObj.eulerAngles.y;
             clientDataDict[clientUsername].pitch = getObj.eulerAngles.x;
         }
 
-        IEnumerator MoveUpdateRoutine() {
-            yield return new WaitForSeconds(0.1f); //10 times a second
+        //Updates the character prefabs with new position and orientation
+        private void UpdateAllRemoteClientsPos() {
+            foreach (KeyValuePair<string, PlayerData> player in clientDataDict) {
+                if (player.Value.objReference) {
+                    player.Value.objReference.position = player.Value.position;
+                    player.Value.objReference.eulerAngles = new Vector3(player.Value.pitch, player.Value.yaw);
+                }
+                else {
+                    Debug.LogError("[Error] Player object reference missing; cannot update object reference.");
+                }
+                
+            }
+        }
 
-            if (clientDataDict[clientUsername].objReference) {
-                UpdateClientWithPosition(clientDataDict[clientUsername].objReference);
-            }
-            else {
-                Debug.LogError("[Error] Client player reference missing; cannot update position.");
-            }
+        private void TriggerRemoteClientGunfire() {
+
+        }
+
+        IEnumerator MoveUpdateRoutine() {
+            loopMoveUpdate = true;
+
+            yield return new WaitForSeconds(6.0f); //Delay before match start
+
+
+            while (loopMoveUpdate) {
+                yield return new WaitForSeconds(0.1f); //10 times a second
+
+                if (clientDataDict[clientUsername].objReference) {
+                    UpdateClientWithPosition(clientDataDict[clientUsername].objReference);
+                }
+                else {
+                    Debug.LogError("[Error] Client player reference missing; cannot update position.");
+                }
             
-            UpdateServerWithPosition();
+                UpdateServerWithPosition();
+                UpdateAllRemoteClientsPos();
+            }
         }
 
 

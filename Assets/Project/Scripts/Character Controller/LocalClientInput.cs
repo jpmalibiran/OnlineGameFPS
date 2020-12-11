@@ -289,6 +289,10 @@ namespace FPSCharController {
             //TODO Incomplete
         }
 
+        public void AssignCharacterToControl(FirstPersonController insertCharacter) {
+            m_charCtrlRef = insertCharacter;
+        }
+
         //process for muzzle flash and gunshot cooldown
         IEnumerator Gunfire() {
 

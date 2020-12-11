@@ -138,21 +138,35 @@ namespace FPSNetworkCode {
         //TODO enum gun
     }
 
-    //From client or server
+    //From client
     [Serializable]
-    public class MoveUpdateData {
+    public class PlayerMoveData {
         public Flag flag;
         public string username;
         public Coordinates position;
         public Orientation orientation;
+        public int health;
 
-        public MoveUpdateData(string getUsername, float getPosX, float getPosY, float getPosZ, float getYaw, float getPitch) {
+        public PlayerMoveData(string getUsername, float getPosX, float getPosY, float getPosZ, float getYaw, float getPitch, int getHealth) {
             flag = Flag.MATCH_UPDATE;
             username = getUsername;
             position = new Coordinates(getPosX, getPosY, getPosZ);
             orientation = new Orientation(getYaw, getPitch);
+            health = getHealth;
         }
     }
+
+    //From server
+    [Serializable]
+    public class MoveUpdateData {
+        public Flag flag;
+        public PlayerMoveData[] players;
+
+        public MoveUpdateData() {
+            flag = Flag.MATCH_UPDATE;
+        }
+    }
+
     
     [Serializable]
     public class HitScanData {

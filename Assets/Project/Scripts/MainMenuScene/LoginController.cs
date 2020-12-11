@@ -153,6 +153,7 @@ public class LoginController : MonoBehaviour
         RegisterAge.SetActive(true);
         SubmitCoverButton.SetActive(true);
         Registering = true;
+
     }
 
     public void ReturnFromRegistration()
@@ -171,6 +172,13 @@ public class LoginController : MonoBehaviour
         SubmitCoverButton.SetActive(false);
         SubmitButton.SetActive(false);
         Registering = false;
+
+        if (netManager) {
+            if (netManager.IsConnectedToServer()) 
+            {
+                netManager.AttemptLogin(RegisterName.GetComponent<TMP_InputField>().text, RegisterPassword.GetComponent<TMP_InputField>().text);
+            }
+        }
     }
     
     public void UserExists()
