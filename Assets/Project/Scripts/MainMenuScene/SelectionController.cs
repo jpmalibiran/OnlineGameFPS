@@ -69,12 +69,13 @@ public class SelectionController : MonoBehaviour
     public void MatchmakingComplete()
     {
         FoundMatch = true;  
+        MoveToGame();
     }
 
     public void MoveToGame()
     {
-        SceneManager.LoadScene(3);
         Destroy(MusicObject);
+        SceneManager.LoadScene(3);
     }
     
     public void MoveToProfile()

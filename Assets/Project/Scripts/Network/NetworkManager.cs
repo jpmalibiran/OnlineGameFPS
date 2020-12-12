@@ -358,7 +358,13 @@ namespace FPSNetworkCode {
                 }
                 Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene().name + "'.");
 
-                if (selectCtrlRef) {
+                if (!selectCtrlRef) {
+                    if (GameObject.Find("SelectionController")) {
+                        selectCtrlRef = GameObject.Find("SelectionController").GetComponent<SelectionController>();
+                        selectCtrlRef.MatchmakingComplete();
+                    }
+                }
+                else {
                     selectCtrlRef.MatchmakingComplete();
                 }
 
@@ -383,10 +389,18 @@ namespace FPSNetworkCode {
                 }
                 Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene().name + "'.");
 
-                if (profileMgrRef) {
-                    profileMgrRef.SetProfile("default",1500,0,0,0,0,0,0,0,0,0,0); //TODO TEMP
+                if (!profileMgrRef) {
+                    if (GameObject.Find("ProfileManager")) {
+                        profileMgrRef = GameObject.Find("ProfileManager").GetComponent<ProfileMgr>();
+                        profileMgrRef.SetProfile("default",1500,0,0,0,0,0,0,0,0,0,0); //TODO TEMP
+                        clientUsername = profileMgrRef._Username;
+                    }
                 }
-                clientUsername = profileMgrRef._Username;
+                else {
+                    profileMgrRef.SetProfile("default",1500,0,0,0,0,0,0,0,0,0,0); //TODO TEMP
+                    clientUsername = profileMgrRef._Username;
+                }
+
                 dataQueue.Dequeue();
             }
             else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.FAILED_FETCH) {
@@ -399,9 +413,9 @@ namespace FPSNetworkCode {
             }
             else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.MATCH_UPDATE) {
                 MoveUpdateData playersData = JsonUtility.FromJson<MoveUpdateData>(dataQueue.Peek());
-                if (bDebug){ Debug.Log("[Notice] Received Match Update."); }
+                if (bDebug && bVerboseDebug){ Debug.Log("[Notice] Received Match Update."); }
 
-                Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene().name + "'.");
+                if (bDebug && bVerboseDebug) { Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene().name + "'.");}
 
                 //Receive lobby data
                 foreach (PlayerMoveData player in playersData.players) {
@@ -461,6 +475,18 @@ namespace FPSNetworkCode {
                     consoleRef.UpdateChat("[Console] Cannot log in; user is not connected to server.");
                 }
                 return;
+            }
+
+            if (!profileMgrRef) {
+                if (GameObject.Find("ProfileManager")) {
+                    profileMgrRef = GameObject.Find("ProfileManager").GetComponent<ProfileMgr>();
+                    profileMgrRef.SetProfile(username,1500,0,0,0,0,0,0,0,0,0,0); //TODO TEMP
+                    clientUsername = username;
+                }
+            }
+            else {
+                profileMgrRef.SetProfile(username,1500,0,0,0,0,0,0,0,0,0,0); //TODO TEMP
+                clientUsername = username;
             }
 
             string msgJson;
@@ -582,7 +608,7 @@ namespace FPSNetworkCode {
         }
 
         public void AddPlayerCharRef(string getUsername, Transform charReference) {
-   
+            if (bDebug) { Debug.Log("[Notice] Adding player character reference to " + getUsername);}
             clientDataDict[getUsername].objReference = charReference;
         }
 
@@ -594,7 +620,8 @@ namespace FPSNetworkCode {
                 clientDataDict[getUsername].health = getHealth;
             }
             else {
-                Debug.LogError("[Warning] clientDataDict does not contain username key; adding new player to clientDataDict.");
+
+                if (bDebug && bVerboseDebug) { Debug.Log("[Notice] clientDataDict does not contain username key; adding new player to clientDataDict.");}
 
                 PlayerData newLocalPlayer = new PlayerData();
                 newLocalPlayer.position = new Vector3(getPosX, getPosY, getPosZ);
@@ -607,18 +634,22 @@ namespace FPSNetworkCode {
         }
 
         public void GameSceneStart(GameplayManager gameMgr) {
-            gameMgrRef = gameMgr;
+
+            if (bDebug) { Debug.Log("[Notice] Instantiating player prefabs...");}
 
             foreach (KeyValuePair<string, PlayerData> player in clientDataDict) {
                 //Instantiate player prefabs
                 if (player.Key == clientUsername) {
-                    gameMgrRef.SpawnPlayer(player.Key, true);
+                    if (bDebug) { Debug.Log("[Notice] Instantiating local player prefab: " + player.Key);}
+                    gameMgr.SpawnPlayer(player.Key, true);
                 }
                 else {
-                    gameMgrRef.SpawnPlayer(player.Key, false);
+                    if (bDebug) { Debug.Log("[Notice] Instantiating remote player prefab: " + player.Key);}
+                    gameMgr.SpawnPlayer(player.Key, false);
                 }
             }
 
+            if (bDebug) { Debug.Log("[Notice] Starting move update routine...");}
             StartCoroutine(MoveUpdateRoutine());
         }
 
@@ -629,6 +660,13 @@ namespace FPSNetworkCode {
                 return;
             }
 
+            if (!clientDataDict.ContainsKey(clientUsername)) {
+                Debug.LogWarning("[Warning] Client is not in clientDataDict; cannot send movement update to server.");
+                return;
+            }
+
+            if (bDebug && bVerboseDebug) { Debug.Log("[Notice] Sending client character move position to server...");}
+
             string msgJson;
             PlayerMoveData updateMsg;
             Byte[] sendBytes;
@@ -638,26 +676,49 @@ namespace FPSNetworkCode {
             msgJson = JsonUtility.ToJson(updateMsg);
             sendBytes = Encoding.ASCII.GetBytes(msgJson);
             udp.Send(sendBytes, sendBytes.Length);
+
+            Debug.Log("[Temp Debug] UpdateServerWithPosition() Sends local client's position and orientation to server:");
+            Debug.Log("[Temp Debug] position: " + clientDataDict[clientUsername].position);
+            Debug.Log("[Temp Debug] yaw: " + clientDataDict[clientUsername].yaw);
+            Debug.Log("[Temp Debug] pitch: " + clientDataDict[clientUsername].pitch);
         }
 
         //Updates clientDataDict with local client's position and orientation
         private void UpdateClientWithPosition(Transform getObj) {
+            if (!clientDataDict.ContainsKey(clientUsername)) {
+                Debug.LogWarning("[Warning] Client is not in clientDataDict; cannot send movement update to client dictionary.");
+                return;
+            }
+
             clientDataDict[clientUsername].position = getObj.position;
             clientDataDict[clientUsername].yaw = getObj.eulerAngles.y;
             clientDataDict[clientUsername].pitch = getObj.eulerAngles.x;
+
+            Debug.Log("[Temp Debug] UpdateClientWithPosition() Updates clientDataDict:");
+            Debug.Log("[Temp Debug] position: " + getObj.position);
+            Debug.Log("[Temp Debug] yaw: " + getObj.eulerAngles.y);
+            Debug.Log("[Temp Debug] pitch: " + getObj.eulerAngles.x);
         }
 
         //Updates the character prefabs with new position and orientation
         private void UpdateAllRemoteClientsPos() {
+            if (bDebug && bVerboseDebug) { Debug.Log("[Notice] Updating remote player's position...");}
+
             foreach (KeyValuePair<string, PlayerData> player in clientDataDict) {
-                if (player.Value.objReference) {
-                    player.Value.objReference.position = player.Value.position;
-                    player.Value.objReference.eulerAngles = new Vector3(player.Value.pitch, player.Value.yaw);
+                if (player.Key != clientUsername) {
+                    if (player.Value.objReference) {
+                        player.Value.objReference.position = player.Value.position;
+                        player.Value.objReference.eulerAngles = new Vector3(player.Value.pitch, player.Value.yaw);
+
+                        Debug.Log("[Temp Debug] UpdateAllRemoteClientsPos() Updates the character prefab:");
+                        Debug.Log("[Temp Debug] username: " + player.Key);
+                        Debug.Log("[Temp Debug] position: " + player.Value.objReference.position);
+                        Debug.Log("[Temp Debug] eulerAngles: " + player.Value.objReference.eulerAngles);
+                    }
+                    else {
+                        Debug.LogError("[Error] Player object reference missing; cannot update object reference.");
+                    }
                 }
-                else {
-                    Debug.LogError("[Error] Player object reference missing; cannot update object reference.");
-                }
-                
             }
         }
 
@@ -668,21 +729,26 @@ namespace FPSNetworkCode {
         IEnumerator MoveUpdateRoutine() {
             loopMoveUpdate = true;
 
-            yield return new WaitForSeconds(6.0f); //Delay before match start
+            //yield return new WaitForSeconds(6.0f); //Delay before match start
 
 
             while (loopMoveUpdate) {
                 yield return new WaitForSeconds(0.1f); //10 times a second
 
-                if (clientDataDict[clientUsername].objReference) {
-                    UpdateClientWithPosition(clientDataDict[clientUsername].objReference);
+                if (clientDataDict.ContainsKey(clientUsername)) {
+                    if (clientDataDict[clientUsername].objReference) {
+                        UpdateClientWithPosition(clientDataDict[clientUsername].objReference); //Sends local client's position and orientation to server
+                    }
+                    else {
+                        Debug.LogError("[Error] Client player reference missing; cannot update position.");
+                    }
                 }
                 else {
-                    Debug.LogError("[Error] Client player reference missing; cannot update position.");
+                    Debug.LogWarning("[Warning] Client is not in clientDataDict; cannot update position.");
                 }
             
-                UpdateServerWithPosition();
-                UpdateAllRemoteClientsPos();
+                UpdateServerWithPosition(); //Updates clientDataDict with local client's position and orientation
+                UpdateAllRemoteClientsPos(); //Updates the character prefabs with new position and orientation
             }
         }
 

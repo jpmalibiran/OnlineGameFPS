@@ -146,11 +146,12 @@ namespace FPSCharController {
 
         //Allows a first person view set up where player camera is controlled by mouse movement
         private void TrackMouseMovement() {
+
             if (!bUseFPSMouseCtrl) {
                 return;
             }
             if (!m_charCamContainerRef) {
-                Debug.LogError("[Error] Missing reference to m_charCameraRef! Aborting operation...");
+                Debug.LogWarning("[Warning] Missing reference to m_charCameraRef! Aborting operation...");
                 return;
             }
 
@@ -276,7 +277,7 @@ namespace FPSCharController {
         //Update the movement vector of the player character
         private void UpdateCharMovement() {
             if (!m_charCtrlRef) {
-                Debug.LogError("[Error] Missing reference to m_charCtrlRef! Aborting operation...");
+                Debug.LogWarning("[Warning] Missing reference to m_charCtrlRef! Aborting operation...");
                 return;
             }
 
@@ -291,6 +292,16 @@ namespace FPSCharController {
 
         public void AssignCharacterToControl(FirstPersonController insertCharacter) {
             m_charCtrlRef = insertCharacter;
+
+            if (!m_charCamContainerRef) {
+                m_charCamContainerRef = m_charCtrlRef.transform.GetChild(0);
+            }
+
+            //Move the main camera into the player character prefab that this will control
+            if (m_charMainCamRef && m_charCamContainerRef) {
+                m_charMainCamRef.SetParent(m_charCamContainerRef);
+                m_charMainCamRef.localPosition = Vector3.zero;
+            }
         }
 
         //process for muzzle flash and gunshot cooldown

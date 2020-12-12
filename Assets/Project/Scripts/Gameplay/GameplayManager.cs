@@ -44,11 +44,10 @@ public class GameplayManager : MonoBehaviour{
             return;
         }
 
-        newObj = Instantiate(playerPrefab, new Vector3(0,10,0), Quaternion.identity);
-
-        netManager.AddPlayerCharRef(getUsername, newObj.transform);
+        
 
         if (spawnLocalClient) {
+            newObj = Instantiate(playerPrefab, new Vector3(0,10,0), Quaternion.identity);
             if (inputCtrlRef) {
                 inputCtrlRef.AssignCharacterToControl(newObj.GetComponent<FPSCharController.FirstPersonController>());
             }
@@ -56,6 +55,12 @@ public class GameplayManager : MonoBehaviour{
                 Debug.LogError("[Error] Missing inputCtrlRef; cannot assign character control.");
             }
         }
+        else {
+            newObj = Instantiate(remotePlayerGhostPrefab, new Vector3(0,10,0), Quaternion.identity);
+        }
+
+        newObj.name = getUsername;
+        netManager.AddPlayerCharRef(getUsername, newObj.transform);
     }
 
 }
