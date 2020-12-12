@@ -50,10 +50,13 @@ namespace FPSNetworkCode {
         private string clientPort;
         private string clientUsername;
 
-        [SerializeField] private bool isConnected = false;
-        [SerializeField] private bool isInMatch = false;
-        [SerializeField] private bool isLoggedIn = false;
-        [SerializeField] private bool isInMMQueue = false;
+        [SerializeField] private float smoothRotationYaw = 5.0f;
+        [SerializeField] private float smoothRotationPitch = 5.0f;
+
+        private bool isConnected = false;
+        private bool isInMatch = false;
+        private bool isLoggedIn = false;
+        private bool isInMMQueue = false;
         private bool loopMoveUpdate = false;
 
         private void Awake() {
@@ -699,7 +702,7 @@ namespace FPSNetworkCode {
 
             clientDataDict[clientUsername].position = getObj.position;
             clientDataDict[clientUsername].yaw = getObj.eulerAngles.y;
-            clientDataDict[clientUsername].pitch = getObj.eulerAngles.x;
+            clientDataDict[clientUsername].pitch = getObj.GetChild(0).localEulerAngles.x;
 
             //Debug.Log("[Temp Debug] UpdateClientWithPosition() Updates clientDataDict:");
             //Debug.Log("[Temp Debug] position: " + getObj.position);
@@ -709,13 +712,18 @@ namespace FPSNetworkCode {
 
         //Updates the character prefabs with new position and orientation
         private void UpdateAllRemoteClientsPos() {
+
             if (bDebug && bVerboseDebug) { Debug.Log("[Notice] Updating remote player's position...");}
 
             foreach (KeyValuePair<string, PlayerData> player in clientDataDict) {
                 if (player.Key != clientUsername) {
                     if (player.Value.objReference) {
                         player.Value.objReference.position = player.Value.position;
-                        player.Value.objReference.eulerAngles = new Vector3(player.Value.pitch, player.Value.yaw);
+                        player.Value.objReference.eulerAngles = new Vector3(0, player.Value.yaw, 0);
+                        player.Value.objReference.GetChild(0).localEulerAngles = new Vector3(player.Value.pitch, 0, 0);
+
+                        player.Value.objChaserReference.rotation = Quaternion.Slerp(player.Value.objChaserReference.rotation, player.Value.objReference.rotation,  Time.deltaTime * smoothRotationYaw);
+                        player.Value.objChaserReference.GetChild(0).rotation = Quaternion.Slerp(player.Value.objChaserReference.GetChild(0).rotation, player.Value.objReference.GetChild(0).rotation,  Time.deltaTime * smoothRotationPitch);
 
                         //Debug.Log("[Temp Debug] UpdateAllRemoteClientsPos() Updates the character prefab:");
                         //Debug.Log("[Temp Debug] username: " + player.Key);

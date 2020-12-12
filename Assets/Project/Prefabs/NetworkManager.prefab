@@ -51,8 +51,14 @@ MonoBehaviour:
   showPing: 
   showIfConnected: 0
   consoleRef: {fileID: 0}
+  loginCtrlRef: {fileID: 0}
+  selectCtrlRef: {fileID: 0}
+  profileMgrRef: {fileID: 0}
+  gameMgrRef: {fileID: 0}
   remoteEndpointAddress: localhost
   remoteEndpointPort: 12345
+  smoothRotationYaw: 5
+  smoothRotationPitch: 40
 --- !u!114 &6338170262553449059
 MonoBehaviour:
   m_ObjectHideFlags: 0
