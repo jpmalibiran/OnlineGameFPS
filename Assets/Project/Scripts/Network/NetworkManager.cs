@@ -610,6 +610,13 @@ namespace FPSNetworkCode {
         public void AddPlayerCharRef(string getUsername, Transform charReference) {
             if (bDebug) { Debug.Log("[Notice] Adding player character reference to " + getUsername);}
             clientDataDict[getUsername].objReference = charReference;
+            clientDataDict[getUsername].objChaserReference = charReference;
+        }
+
+        public void AddPlayerCharRef(string getUsername, Transform charReference, Transform chaserReference) {
+            if (bDebug) { Debug.Log("[Notice] Adding player character reference to " + getUsername);}
+            clientDataDict[getUsername].objReference = charReference;
+            clientDataDict[getUsername].objChaserReference = chaserReference;
         }
 
         public void UpdatePlayer(string getUsername, float getPosX, float getPosY, float getPosZ, float getYaw, float getPitch, int getHealth) {
@@ -677,10 +684,10 @@ namespace FPSNetworkCode {
             sendBytes = Encoding.ASCII.GetBytes(msgJson);
             udp.Send(sendBytes, sendBytes.Length);
 
-            Debug.Log("[Temp Debug] UpdateServerWithPosition() Sends local client's position and orientation to server:");
-            Debug.Log("[Temp Debug] position: " + clientDataDict[clientUsername].position);
-            Debug.Log("[Temp Debug] yaw: " + clientDataDict[clientUsername].yaw);
-            Debug.Log("[Temp Debug] pitch: " + clientDataDict[clientUsername].pitch);
+            ////Debug.Log("[Temp Debug] UpdateServerWithPosition() Sends local client's position and orientation to server:");
+            ////Debug.Log("[Temp Debug] position: " + clientDataDict[clientUsername].position);
+            ////Debug.Log("[Temp Debug] yaw: " + clientDataDict[clientUsername].yaw);
+            ////Debug.Log("[Temp Debug] pitch: " + clientDataDict[clientUsername].pitch);
         }
 
         //Updates clientDataDict with local client's position and orientation
@@ -694,10 +701,10 @@ namespace FPSNetworkCode {
             clientDataDict[clientUsername].yaw = getObj.eulerAngles.y;
             clientDataDict[clientUsername].pitch = getObj.eulerAngles.x;
 
-            Debug.Log("[Temp Debug] UpdateClientWithPosition() Updates clientDataDict:");
-            Debug.Log("[Temp Debug] position: " + getObj.position);
-            Debug.Log("[Temp Debug] yaw: " + getObj.eulerAngles.y);
-            Debug.Log("[Temp Debug] pitch: " + getObj.eulerAngles.x);
+            //Debug.Log("[Temp Debug] UpdateClientWithPosition() Updates clientDataDict:");
+            //Debug.Log("[Temp Debug] position: " + getObj.position);
+            //Debug.Log("[Temp Debug] yaw: " + getObj.eulerAngles.y);
+            //Debug.Log("[Temp Debug] pitch: " + getObj.eulerAngles.x);
         }
 
         //Updates the character prefabs with new position and orientation
@@ -710,10 +717,10 @@ namespace FPSNetworkCode {
                         player.Value.objReference.position = player.Value.position;
                         player.Value.objReference.eulerAngles = new Vector3(player.Value.pitch, player.Value.yaw);
 
-                        Debug.Log("[Temp Debug] UpdateAllRemoteClientsPos() Updates the character prefab:");
-                        Debug.Log("[Temp Debug] username: " + player.Key);
-                        Debug.Log("[Temp Debug] position: " + player.Value.objReference.position);
-                        Debug.Log("[Temp Debug] eulerAngles: " + player.Value.objReference.eulerAngles);
+                        //Debug.Log("[Temp Debug] UpdateAllRemoteClientsPos() Updates the character prefab:");
+                        //Debug.Log("[Temp Debug] username: " + player.Key);
+                        //Debug.Log("[Temp Debug] position: " + player.Value.objReference.position);
+                        //Debug.Log("[Temp Debug] eulerAngles: " + player.Value.objReference.eulerAngles);
                     }
                     else {
                         Debug.LogError("[Error] Player object reference missing; cannot update object reference.");
@@ -733,7 +740,7 @@ namespace FPSNetworkCode {
 
 
             while (loopMoveUpdate) {
-                yield return new WaitForSeconds(0.1f); //10 times a second
+                yield return new WaitForSeconds(0.05f); //10 times a second
 
                 if (clientDataDict.ContainsKey(clientUsername)) {
                     if (clientDataDict[clientUsername].objReference) {

@@ -4784,7 +4784,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1989002020
 Transform:
   m_ObjectHideFlags: 0
@@ -5578,14 +5578,6 @@ PrefabInstance:
       propertyPath: inputCtrlRef
       value: 
       objectReference: {fileID: 8782771255744203847}
-    - target: {fileID: 8375146440185899766, guid: c283a17d27e5a124da8e27b858f8bda0, type: 3}
-      propertyPath: remotePlayerGhostPrefab
-      value: 
-      objectReference: {fileID: 1798130110421676475, guid: 346c4196fce07cf4c94b96a36ce941dd, type: 3}
-    - target: {fileID: 8375146440185899766, guid: c283a17d27e5a124da8e27b858f8bda0, type: 3}
-      propertyPath: remotePlayerPrefab
-      value: 
-      objectReference: {fileID: 6270942505276460483, guid: 2162fd2c1b38241439218ee47859cf75, type: 3}
     - target: {fileID: 8375146440185899767, guid: c283a17d27e5a124da8e27b858f8bda0, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

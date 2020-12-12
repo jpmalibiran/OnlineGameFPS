@@ -46,6 +46,6 @@ MonoBehaviour:
   bDebug: 1
   bVerboseDebug: 0
   playerPrefab: {fileID: 8891877752985727898, guid: 761f07c3e1839964e92543061c155aef, type: 3}
-  remotePlayerPrefab: {fileID: 0}
-  remotePlayerGhostPrefab: {fileID: 0}
+  remotePlayerChaserPrefab: {fileID: 6270942505276460483, guid: 2162fd2c1b38241439218ee47859cf75, type: 3}
+  remotePlayerGhostPrefab: {fileID: 1798130110421676475, guid: 346c4196fce07cf4c94b96a36ce941dd, type: 3}
   inputCtrlRef: {fileID: 0}

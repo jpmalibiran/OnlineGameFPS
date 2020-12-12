@@ -128,6 +128,7 @@ namespace FPSNetworkCode {
     [Serializable]
     public class PlayerData {
         public Transform objReference;
+        public Transform objChaserReference;
         public string username;
         public Vector3 position;
         public float yaw;
