@@ -429,6 +429,76 @@ namespace FPSNetworkCode {
 
                 dataQueue.Dequeue();
             }
+            else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.MISSSHOT_UPDATE) {
+                MissShotsData shotData = JsonUtility.FromJson<MissShotsData>(dataQueue.Peek());
+                Debug.Log("[Temp Debug] dataQueue.Count: " + dataQueue.Count);
+                dataQueue.Dequeue();
+
+                Debug.Log("[Notice] Received Missed Shot Update.");
+                if (bDebug && bVerboseDebug) { Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene().name + "'.");}
+
+                //Dont process gunshots from own client
+                if (shotData.usernameOrigin == clientUsername) {
+                    Debug.Log("    [Notice] Will not process own gunshots...");
+                    return;
+                }
+
+                if (!gameMgrRef) {
+                    if (GameObject.Find("GameManager")) {
+                        gameMgrRef = GameObject.Find("GameManager").GetComponent<GameplayManager>();
+                    }
+                }
+
+                if (gameMgrRef) {
+                    if (clientDataDict.ContainsKey(shotData.usernameOrigin)) {
+                        StartCoroutine(gameMgrRef.ConveyMissShot(clientDataDict[shotData.usernameOrigin].objChaserReference, new Vector3(shotData.hitPosition.x,shotData.hitPosition.y,shotData.hitPosition.z)));
+                    }
+                    else {
+                        Debug.LogError("[Error] shotData.usernameOrigin is not a valid key in clientDataDict; cannot update miss shot.");
+                    }
+                }
+                else {
+                    Debug.LogError("[Error] GameplayManager reference missing; cannot update miss shot.");
+                }
+                
+            }
+            else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.HITSCAN_UPDATE) {
+                HitScanData shotData = JsonUtility.FromJson<HitScanData>(dataQueue.Peek());
+
+                Debug.Log("[Notice] Received Hit Scan Update."); 
+                if (bDebug && bVerboseDebug) { Debug.Log("[TEMP TEST] Active Scene is '" + SceneManager.GetActiveScene().name + "'.");}
+
+                //Dont process gunshots from own client
+                if (shotData.usernameOrigin == clientUsername) {
+                    return;
+                }
+
+                if (!gameMgrRef) {
+                    if (GameObject.Find("GameManager")) {
+                        gameMgrRef = GameObject.Find("GameManager").GetComponent<GameplayManager>();
+                    }
+                }
+
+                if (gameMgrRef) {
+                    if (clientDataDict.ContainsKey(shotData.usernameOrigin) && clientDataDict.ContainsKey(shotData.usernameTarget)) {
+
+                        if (shotData.usernameTarget == clientUsername) {
+                            StartCoroutine(gameMgrRef.ConveyHitShot(clientDataDict[shotData.usernameOrigin].objChaserReference, clientDataDict[shotData.usernameTarget].objReference, new Vector3(shotData.hitPosition.x,shotData.hitPosition.y,shotData.hitPosition.z), shotData.damage));
+                        }
+                        else {
+                            StartCoroutine(gameMgrRef.ConveyHitShot(clientDataDict[shotData.usernameOrigin].objChaserReference, clientDataDict[shotData.usernameTarget].objChaserReference, new Vector3(shotData.hitPosition.x,shotData.hitPosition.y,shotData.hitPosition.z), shotData.damage));
+                        }
+                        Debug.Log("[Notice] " + shotData.usernameTarget + " received " + shotData.damage + " gunfire damage from " + shotData.usernameOrigin);
+                    }
+                    else {
+                        Debug.LogError("[Error] shotData.usernameOrigin is not a valid key in clientDataDict; cannot update hit shot.");
+                    }
+                }
+                else {
+                    Debug.LogError("[Error] GameplayManager reference missing; cannot update hit shot.");
+                }
+                dataQueue.Dequeue();
+            }
 
         }
 
@@ -628,6 +698,7 @@ namespace FPSNetworkCode {
                 clientDataDict[getUsername].yaw = getYaw;
                 clientDataDict[getUsername].pitch = getPitch;
                 clientDataDict[getUsername].health = getHealth;
+                clientDataDict[getUsername].isFiring = false;
             }
             else {
 
@@ -639,6 +710,7 @@ namespace FPSNetworkCode {
                 newLocalPlayer.pitch = getPitch;
                 newLocalPlayer.latency = 0;
                 newLocalPlayer.health = getHealth;
+                newLocalPlayer.isFiring = false;
                 clientDataDict.Add(getUsername, newLocalPlayer);
             }
         }
@@ -686,11 +758,6 @@ namespace FPSNetworkCode {
             msgJson = JsonUtility.ToJson(updateMsg);
             sendBytes = Encoding.ASCII.GetBytes(msgJson);
             udp.Send(sendBytes, sendBytes.Length);
-
-            ////Debug.Log("[Temp Debug] UpdateServerWithPosition() Sends local client's position and orientation to server:");
-            ////Debug.Log("[Temp Debug] position: " + clientDataDict[clientUsername].position);
-            ////Debug.Log("[Temp Debug] yaw: " + clientDataDict[clientUsername].yaw);
-            ////Debug.Log("[Temp Debug] pitch: " + clientDataDict[clientUsername].pitch);
         }
 
         //Updates clientDataDict with local client's position and orientation
@@ -704,10 +771,11 @@ namespace FPSNetworkCode {
             clientDataDict[clientUsername].yaw = getObj.eulerAngles.y;
             clientDataDict[clientUsername].pitch = getObj.GetChild(0).localEulerAngles.x;
 
-            //Debug.Log("[Temp Debug] UpdateClientWithPosition() Updates clientDataDict:");
-            //Debug.Log("[Temp Debug] position: " + getObj.position);
-            //Debug.Log("[Temp Debug] yaw: " + getObj.eulerAngles.y);
-            //Debug.Log("[Temp Debug] pitch: " + getObj.eulerAngles.x);
+            //When firing let gunshot functions determine where to aim instead
+            //if (clientDataDict[clientUsername].isFiring == false) {
+            //    clientDataDict[clientUsername].yaw = getObj.eulerAngles.y;
+            //    clientDataDict[clientUsername].pitch = getObj.GetChild(0).localEulerAngles.x;
+            //}
         }
 
         //Updates the character prefabs with new position and orientation
@@ -724,11 +792,6 @@ namespace FPSNetworkCode {
 
                         player.Value.objChaserReference.rotation = Quaternion.Slerp(player.Value.objChaserReference.rotation, player.Value.objReference.rotation,  Time.deltaTime * smoothRotationYaw);
                         player.Value.objChaserReference.GetChild(0).rotation = Quaternion.Slerp(player.Value.objChaserReference.GetChild(0).rotation, player.Value.objReference.GetChild(0).rotation,  Time.deltaTime * smoothRotationPitch);
-
-                        //Debug.Log("[Temp Debug] UpdateAllRemoteClientsPos() Updates the character prefab:");
-                        //Debug.Log("[Temp Debug] username: " + player.Key);
-                        //Debug.Log("[Temp Debug] position: " + player.Value.objReference.position);
-                        //Debug.Log("[Temp Debug] eulerAngles: " + player.Value.objReference.eulerAngles);
                     }
                     else {
                         Debug.LogError("[Error] Player object reference missing; cannot update object reference.");
@@ -737,8 +800,29 @@ namespace FPSNetworkCode {
             }
         }
 
-        private void TriggerRemoteClientGunfire() {
+        public void SendGunfireDataToServer(FPSCharController.HitData getData) {
+            Debug.Log("[Notice] Sending gunfire data to server...");
 
+            string msgJson;
+            MissShotsData gunfireMissMsg;
+            HitScanData gunfireHitMsg;
+            Byte[] sendBytes;
+
+            if (getData.is_hit) {
+                gunfireHitMsg = new HitScanData(getData.hit_origin_name, getData.hit_name, new Coordinates(getData.hit_location.x, getData.hit_location.y, getData.hit_location.z), getData.damage, getData.is_hit);
+                msgJson = JsonUtility.ToJson(gunfireHitMsg);
+            }
+            else {
+                gunfireMissMsg = new MissShotsData(getData.hit_origin_name, new Coordinates(getData.hit_location.x, getData.hit_location.y, getData.hit_location.z));
+                msgJson = JsonUtility.ToJson(gunfireMissMsg);
+            }
+            
+            sendBytes = Encoding.ASCII.GetBytes(msgJson);
+            udp.Send(sendBytes, sendBytes.Length);
+        }
+
+        public void SetIsFiring(string username, bool set) {
+            clientDataDict[username].isFiring = set;
         }
 
         IEnumerator MoveUpdateRoutine() {

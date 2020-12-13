@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &404111001563693914
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1497994887173467355}
+  m_Layer: 0
+  m_Name: Muzzle Flash Container
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &1497994887173467355
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 404111001563693914}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 4196050938984692377}
+  m_Father: {fileID: 3197722102751731983}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1457360054879427329
 GameObject:
   m_ObjectHideFlags: 0
@@ -59,7 +90,8 @@ Transform:
   m_LocalRotation: {x: -0.019264191, y: -0.034980293, z: -0.00067440514, w: 0.99920213}
   m_LocalPosition: {x: 0.7, y: -0.38, z: 0.8}
   m_LocalScale: {x: 0.20000002, y: 0.20000003, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 1497994887173467355}
   m_Father: {fileID: 6440108279830044747}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: -2.209, y: -4.01, z: 0}
@@ -112,6 +144,49 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &4131379784318936347
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4196050938984692377}
+  - component: {fileID: 8683079201449863985}
+  m_Layer: 0
+  m_Name: Halo
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4196050938984692377
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4131379784318936347}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.19, y: -0.1, z: 0.536}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1497994887173467355}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!122 &8683079201449863985
+Halo:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4131379784318936347}
+  m_Enabled: 1
+  m_Color:
+    serializedVersion: 2
+    rgba: 4278247167
+  m_Size: 0.3
 --- !u!1 &6270942505276460483
 GameObject:
   m_ObjectHideFlags: 0
@@ -126,6 +201,7 @@ GameObject:
   - component: {fileID: 7082211572285465996}
   - component: {fileID: 336602312053647867}
   - component: {fileID: -3840044543686566339}
+  - component: {fileID: 2978378453460384063}
   m_Layer: 0
   m_Name: Remote Prefab
   m_TagString: Player
@@ -321,4 +397,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetGhost: {fileID: 0}
-  speed: 20
+  smoothTime: 0.1
+--- !u!114 &2978378453460384063
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6270942505276460483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec7c405cd261b384f863231d7d357d19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  remoteBulletPrefab: {fileID: 2362041213766688351, guid: 65a1c96dfaad1e84b9ef1ed4c3060eb4, type: 3}
+  muzzleFlashRef: {fileID: 1497994887173467355}
+  mockGunRef: {fileID: 3197722102751731983}
+  audioSrcRef: {fileID: 336602312053647867}

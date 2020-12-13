@@ -17,9 +17,13 @@ public class GameplayManager : MonoBehaviour{
 
     private FPSNetworkCode.NetworkManager netManager;
     private ProfileMgr profileManager;
+    private Transform invisibleTargeter;
+    private Transform invisibleAimer;
 
     // Start is called before the first frame update
     void Start(){
+        invisibleTargeter = new GameObject().transform;
+
         if (GameObject.Find("NetworkManager")) {
             netManager = GameObject.Find("NetworkManager").GetComponent<FPSNetworkCode.NetworkManager>();
             netManager.GameSceneStart(this);
@@ -119,7 +123,7 @@ public class GameplayManager : MonoBehaviour{
             Debug.Log("[Temp Debug] Spawning chaser: " + getUsername);
 
             newChaserObj = Instantiate(remotePlayerChaserPrefab, spawnLocation, Quaternion.identity);
-            newChaserObj.name = getUsername + " Chaser";
+            newChaserObj.name = getUsername;
 
             newChaserObj.GetComponent<GhostChaser>().AssignGhost(newObj.transform);
 
@@ -127,4 +131,56 @@ public class GameplayManager : MonoBehaviour{
         }
     }
 
+    public IEnumerator ConveyMissShot(Transform gunfireSource, Vector3 gunfireTarget) {
+
+        if (!invisibleTargeter) {
+            invisibleTargeter = new GameObject().transform;
+        }
+        if (!invisibleAimer) {
+            invisibleAimer = new GameObject().transform;
+        }
+
+        //Aim remote player to target via hacks
+        //invisibleAimer.position = gunfireSource.position;
+        //invisibleTargeter.position = gunfireTarget;
+        //invisibleAimer.LookAt(invisibleTargeter);
+        //gunfireSource.eulerAngles = new Vector3(0,invisibleAimer.eulerAngles.y,0); //Yaw
+        //gunfireSource.GetChild(0).localEulerAngles = new Vector3(invisibleAimer.eulerAngles.x,0,0); //Pitch
+        //gunfireSource.GetChild(0).GetChild(0).LookAt(invisibleTargeter); //Gun Aim
+
+        if (gunfireSource.GetComponent<ChaserGunCtrl>()) {
+            gunfireSource.GetComponent<ChaserGunCtrl>().PerformGunfire();
+        }
+
+        yield return new WaitForSeconds(0.2f);
+        //gunfireSource.GetChild(0).GetChild(0).localEulerAngles = new Vector3(-2.209f, -4.01f, 0.0f); //reset gun aim
+    }
+
+    public IEnumerator ConveyHitShot(Transform gunfireSource, Transform gunfireVictim, Vector3 gunfireTarget, int getDamageAmt) {
+
+        if (!invisibleTargeter) {
+            invisibleTargeter = new GameObject().transform;
+        }
+        if (!invisibleAimer) {
+            invisibleAimer = new GameObject().transform;
+        }
+        netManager.SetIsFiring(gunfireSource.name, true);
+
+        //Aim remote player to target via hacks
+        //invisibleAimer.position = gunfireSource.position;
+        //invisibleTargeter.position = gunfireTarget;
+        //invisibleAimer.LookAt(invisibleTargeter);
+        //gunfireSource.eulerAngles = new Vector3(0,invisibleAimer.eulerAngles.y,0); //Yaw
+        //gunfireSource.GetChild(0).localEulerAngles = new Vector3(invisibleAimer.eulerAngles.x,0,0); //Pitch
+        //gunfireSource.GetChild(0).GetChild(0).LookAt(invisibleTargeter); //Gun Aim
+
+        if (gunfireSource.GetComponent<ChaserGunCtrl>()) {
+            gunfireSource.GetComponent<ChaserGunCtrl>().PerformGunfire();
+        }
+
+        yield return new WaitForSeconds(0.6f);
+
+        netManager.SetIsFiring(gunfireSource.name, false);
+        //gunfireSource.GetChild(0).GetChild(0).localEulerAngles = new Vector3(-2.209f, -4.01f, 0.0f); //reset gun aim
+    }
 }

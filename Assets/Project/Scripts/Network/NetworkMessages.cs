@@ -135,6 +135,7 @@ namespace FPSNetworkCode {
         public float pitch;
         public float latency;
         public int health;
+        public bool isFiring;
         //public int bullets;
         //TODO enum gun
     }
@@ -177,6 +178,15 @@ namespace FPSNetworkCode {
         public Coordinates hitPosition;
         public int damage;
         public bool isHit; //might not be needed since we have class MissShotsData
+
+        public HitScanData(string getOrigin, string getTarget, Coordinates getHitPos, int getDamage, bool getIsHit) {
+            flag = Flag.HITSCAN_UPDATE;
+            usernameOrigin = getOrigin;
+            usernameTarget = getTarget;
+            hitPosition = getHitPos;
+            damage = getDamage;
+            isHit = getIsHit;
+        }
     }
 
     [Serializable]
@@ -184,6 +194,12 @@ namespace FPSNetworkCode {
         public Flag flag;
         public string usernameOrigin;
         public Coordinates hitPosition;
+
+        public MissShotsData(string getOrigin, Coordinates getHitPos){
+            flag = Flag.MISSSHOT_UPDATE;
+            usernameOrigin = getOrigin;
+            hitPosition = getHitPos;
+        }
     }
 
     [Serializable]

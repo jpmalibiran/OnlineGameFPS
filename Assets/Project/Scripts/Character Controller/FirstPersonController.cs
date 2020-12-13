@@ -121,7 +121,6 @@ namespace FPSCharController {
         //Does a raycast from the center of the screen directly outward. Plays audio, subtracts ammo, check if the raycast hits any object colliders.
         //Note: UI layer muzzle flash and gunfire cooldown is handled in LocalClientInput.cs
         public HitData FireWeapon() {
-            Vector3 mousePosition;
             HitData newHitData;
 
             if (m_audioSrcRef) {
@@ -141,20 +140,20 @@ namespace FPSCharController {
                 //Debug.DrawRay(mousePosition, Camera.main.transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
                 
                 if (hit.transform.tag == "Player") {
-                    if (bVerboseDebug) { Debug.Log("[Notice] Player hit!"); }
-                    newHitData = new HitData(true, 0, 0, 1, hit.distance);
+                    if (bVerboseDebug) { Debug.Log("[Notice] Player hit! " + hit.transform.name); }
+                    newHitData = new HitData(true, hit.transform.name, this.transform.name, hit.transform.position, 1, hit.distance);
                     hit.transform.gameObject.SendMessage("GotHit", 20);
                 }
                 else {
-                    if (bVerboseDebug) { Debug.Log("[Notice] Object hit!"); }
-                    newHitData = new HitData(false, 0, 0, 1, hit.distance);
+                    if (bVerboseDebug) { Debug.Log("[Notice] Object hit! " + hit.transform.name); }
+                    newHitData = new HitData(false, hit.transform.name, this.transform.name, hit.transform.position, 1, hit.distance);
                 }
             }
             else{
                 //Debug.DrawRay(mousePosition, Camera.main.transform.TransformDirection(Vector3.forward) * hit.distance * 1000, Color.yellow);
                 if (bVerboseDebug) { Debug.Log("[Notice] No Objects hit."); }
 
-                newHitData = new HitData(false, 0, 0, 1, hit.distance);
+                newHitData = new HitData(false, this.transform.name, this.transform.name, hit.transform.position, 1, hit.distance);
             }
 
             return newHitData; //TODO make this useful
