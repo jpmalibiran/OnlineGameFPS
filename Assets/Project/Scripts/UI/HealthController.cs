@@ -17,7 +17,7 @@ public class HealthController : MonoBehaviour
     void Update()
     {
         //temp test
-        mRT.sizeDelta = new Vector2(mRT.rect.width - 0.01f, mRT.rect.height);
+       // mRT.sizeDelta = new Vector2(mRT.rect.width - 0.01f, mRT.rect.height);
     }
 
     public void HitMe() //Can add a parameter later if need be. 

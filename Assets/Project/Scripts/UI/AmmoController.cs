@@ -5,9 +5,11 @@ using UnityEngine;
 public class AmmoController : MonoBehaviour
 {
     public GameObject[] BulletIcons;
+    public GameObject ReloadText, sfx;
     //public GameObject SoundController; //Note: The audio source component is now at the Player prefab
     private int tempCount, MaxAmmo, CurrentAmmo, ReloadDelay, ReloadCount;
     private bool Reloading;
+    public AudioClip reloadsfx;
     // Start is called before the first frame update
     void Start()
     {
@@ -19,19 +21,21 @@ public class AmmoController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
-        
+
+       
         
         //temp test
         
         if(!Reloading)
         {
+           
             tempCount++;
             if(tempCount > 180)
             {
                 if(CurrentAmmo <= 0)
                 {
                     StartReload();
+                    ReloadText.SetActive(true); 
                     return;
                 }
                     //Fired(); //Note: This is now executed in FirstPersonController.cs when the player shoots
@@ -53,6 +57,8 @@ public class AmmoController : MonoBehaviour
                 ReloadCount = 0;
                 CurrentAmmo = 8;
                 tempCount = 0;
+                sfx.GetComponent<AudioSource>().PlayOneShot(reloadsfx);
+                ReloadText.SetActive(false);
             }
         }
         
