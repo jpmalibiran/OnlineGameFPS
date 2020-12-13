@@ -27,6 +27,7 @@ namespace FPSCharController {
         [SerializeField] private sbyte m_rightwardDebug;
 
         [Header("References")]
+        [SerializeField] private FPSNetworkCode.NetworkManager m_netMgrRef;
         [SerializeField] private FirstPersonController m_charCtrlRef;
         [SerializeField] private AmmoController m_ammoCtrlRef;
         [SerializeField] private GameObject m_profileRef;
@@ -72,10 +73,22 @@ namespace FPSCharController {
             if (!m_charCamContainerRef && m_charCtrlRef) {
                 m_charCamContainerRef = m_charCtrlRef.transform.GetChild(0);
             }
+
+            if (!m_netMgrRef) {
+                if (GameObject.Find("NetworkManager")) {
+                    m_netMgrRef = GameObject.Find("NetworkManager").GetComponent<FPSNetworkCode.NetworkManager>();
+                }
+            }
         }
 
         private void Start() {
             DefaultKeybinds();
+
+            if (!m_netMgrRef) {
+                if (GameObject.Find("NetworkManager")) {
+                    m_netMgrRef = GameObject.Find("NetworkManager").GetComponent<FPSNetworkCode.NetworkManager>();
+                }
+            }
 
             if (bLockCursorToCenter) {
                 Cursor.lockState = CursorLockMode.Locked;
@@ -309,7 +322,13 @@ namespace FPSCharController {
 
             bCanFire = false;
             if (m_charCtrlRef) {
-                m_charCtrlRef.FireWeapon();
+                if (m_netMgrRef) {
+                    m_netMgrRef.SendGunfireDataToServer(m_charCtrlRef.FireWeapon());
+                }
+                else {
+                    m_charCtrlRef.FireWeapon();
+                    Debug.Log("[Error] ");
+                }
             }
             if (m_muzzleFlashUIRef) {
                 m_muzzleFlashUIRef.gameObject.SetActive(true);
