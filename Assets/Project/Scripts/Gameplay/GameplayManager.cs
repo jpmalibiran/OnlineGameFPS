@@ -75,7 +75,7 @@ public class GameplayManager : MonoBehaviour{
             newObj.name = getUsername + " Ghost";
 
             newChaserObj = Instantiate(remotePlayerChaserPrefab, new Vector3(0,10,0), Quaternion.identity);
-            newChaserObj.name = getUsername + " Chaser";;
+            newChaserObj.name = getUsername;
 
             newChaserObj.GetComponent<GhostChaser>().AssignGhost(newObj.transform);
 

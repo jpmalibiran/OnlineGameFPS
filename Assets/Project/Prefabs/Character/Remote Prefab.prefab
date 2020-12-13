@@ -202,6 +202,7 @@ GameObject:
   - component: {fileID: 336602312053647867}
   - component: {fileID: -3840044543686566339}
   - component: {fileID: 2978378453460384063}
+  - component: {fileID: -2000523999480946752}
   m_Layer: 0
   m_Name: Remote Prefab
   m_TagString: Player
@@ -414,3 +415,17 @@ MonoBehaviour:
   muzzleFlashRef: {fileID: 1497994887173467355}
   mockGunRef: {fileID: 3197722102751731983}
   audioSrcRef: {fileID: 336602312053647867}
+--- !u!136 &-2000523999480946752
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6270942505276460483}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}

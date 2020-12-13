@@ -176,7 +176,7 @@ public class LoginController : MonoBehaviour
         if (netManager) {
             if (netManager.IsConnectedToServer()) 
             {
-                netManager.AttemptLogin(RegisterName.GetComponent<TMP_InputField>().text, RegisterPassword.GetComponent<TMP_InputField>().text);
+                netManager.AttemptAccountCreation(RegisterName.GetComponent<TMP_InputField>().text, RegisterPassword.GetComponent<TMP_InputField>().text);
             }
         }
     }
