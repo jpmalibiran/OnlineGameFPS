@@ -21,6 +21,7 @@ namespace FPSCharController {
             is_hit = false;
             hit_name = "";
             hit_origin_name = "";
+            hit_location = Vector3.zero;
             damage = 0;
             distance = 0;
         }
@@ -29,6 +30,7 @@ namespace FPSCharController {
             is_hit = false;
             hit_name = getID;
             hit_origin_name = getOrigin;
+            hit_location = getLocation;
             damage = 0;
             distance = 0;
         }

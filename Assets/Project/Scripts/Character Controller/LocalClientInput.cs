@@ -327,7 +327,7 @@ namespace FPSCharController {
                 }
                 else {
                     m_charCtrlRef.FireWeapon();
-                    Debug.Log("[Error] ");
+                    Debug.Log("[Error] m_netMgrRef missing; cannot send gunfire update to server.");
                 }
             }
             if (m_muzzleFlashUIRef) {

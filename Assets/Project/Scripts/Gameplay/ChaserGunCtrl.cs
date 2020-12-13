@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class ChaserGunCtrl : MonoBehaviour{
-    
+    [SerializeField] private GameObject remoteBulletPrefab;
     [SerializeField] private Transform muzzleFlashRef;
     [SerializeField] private Transform mockGunRef;
     [SerializeField] private AudioSource audioSrcRef;
-    [SerializeField] private LineRenderer lineRenderRef;
+    //[SerializeField] private LineRenderer lineRenderRef;
 
     private RaycastHit hit;
     private Ray ray;
@@ -30,11 +30,6 @@ public class ChaserGunCtrl : MonoBehaviour{
             }
         }
 
-        if (!lineRenderRef) {
-            Debug.LogError("[Error] ");
-            return;
-        }
-
         if (!audioSrcRef) {
             Debug.LogError("[Error] ");
             return;
@@ -44,6 +39,9 @@ public class ChaserGunCtrl : MonoBehaviour{
     }
 
     IEnumerator Gunfire() {
+        LineRenderer lineRenderRef;
+        lineRenderRef = Instantiate(remoteBulletPrefab, mockGunRef.transform.position, mockGunRef.transform.rotation).GetComponent<LineRenderer>();
+        lineRenderRef.useWorldSpace = false;
 
         if (Physics.Raycast(mockGunRef.position, Vector3.forward, out hit)){
             lineRenderRef.SetPosition(0, Vector3.zero);
