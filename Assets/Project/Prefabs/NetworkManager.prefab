@@ -53,9 +53,10 @@ MonoBehaviour:
   consoleRef: {fileID: 0}
   loginCtrlRef: {fileID: 0}
   selectCtrlRef: {fileID: 0}
+  hpBarCtrlRef: {fileID: 0}
   profileMgrRef: {fileID: 0}
   gameMgrRef: {fileID: 0}
-  remoteEndpointAddress: localhost
+  remoteEndpointAddress: 44.241.148.151
   remoteEndpointPort: 12345
   smoothRotationYaw: 5
   smoothRotationPitch: 40
