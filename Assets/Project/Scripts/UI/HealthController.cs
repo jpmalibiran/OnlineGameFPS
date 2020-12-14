@@ -23,6 +23,10 @@ public class HealthController : MonoBehaviour
     public void HitMe() //Can add a parameter later if need be. 
     {
         //for now all damage can be the same
-        mRT.sizeDelta = new Vector2(mRT.rect.width - weaponDamage, mRT.rect.height);
+        mRT.sizeDelta = new Vector2(mRT.rect.width - 80, mRT.rect.height);
+    }
+
+    public void Restore() {
+        mRT.sizeDelta = new Vector2(400, mRT.rect.height);
     }
 }

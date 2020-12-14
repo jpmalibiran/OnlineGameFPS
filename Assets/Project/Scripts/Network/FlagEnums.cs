@@ -33,6 +33,9 @@ namespace FPSNetworkCode {
         MATCH_UPDATE,
         DROPPED_PLAYER,
         HITSCAN_UPDATE,
-        MISSSHOT_UPDATE
+        MISSSHOT_UPDATE,
+        DEATH,
+        RESPAWN,
+        MATCH_END
     };
 }

@@ -33,6 +33,7 @@ namespace FPSNetworkCode {
         [SerializeField] private ConsoleManager consoleRef;
         [SerializeField] private LoginController loginCtrlRef;
         [SerializeField] private SelectionController selectCtrlRef;
+        [SerializeField] private HealthController hpBarCtrlRef;
         [SerializeField] private ProfileMgr profileMgrRef;
         [SerializeField] private GameplayManager gameMgrRef;
 
@@ -395,12 +396,12 @@ namespace FPSNetworkCode {
                 if (!profileMgrRef) {
                     if (GameObject.Find("ProfileManager")) {
                         profileMgrRef = GameObject.Find("ProfileManager").GetComponent<ProfileMgr>();
-                        profileMgrRef.SetProfile("default",1500,0,0,0,0,0,0,0,0,0,0); //TODO TEMP
+                        profileMgrRef.SetProfile(clientUsername,1500,0,0,0,0,0,0,0,0,0,0); //TODO TEMP
                         clientUsername = profileMgrRef._Username;
                     }
                 }
                 else {
-                    profileMgrRef.SetProfile("default",1500,0,0,0,0,0,0,0,0,0,0); //TODO TEMP
+                    profileMgrRef.SetProfile(clientUsername,1500,0,0,0,0,0,0,0,0,0,0); //TODO TEMP
                     clientUsername = profileMgrRef._Username;
                 }
 
@@ -481,8 +482,33 @@ namespace FPSNetworkCode {
 
                 if (gameMgrRef) {
                     if (clientDataDict.ContainsKey(shotData.usernameOrigin) && clientDataDict.ContainsKey(shotData.usernameTarget)) {
+                        if (shotData.damage == 0) { //TODO BANDAID FIX
+                            shotData.damage = 20;
+                        }
+
+                        //subtract from health
+                        if (clientDataDict[shotData.usernameTarget].health - shotData.damage <= 0) {
+                            clientDataDict[shotData.usernameTarget].health = 0;
+                            StartCoroutine(BandaidDeathRoutine());
+                            //SendDeathMessage(shotData.usernameOrigin, shotData.usernameTarget);
+                        }
+                        else if (clientDataDict[shotData.usernameTarget].health - shotData.damage > 100) {
+                            clientDataDict[shotData.usernameTarget].health = 100;
+                        }
+                        else {
+                            clientDataDict[shotData.usernameTarget].health = clientDataDict[shotData.usernameTarget].health - shotData.damage; 
+                        }
+
+                        Debug.Log("[Notice] health: " + clientDataDict[shotData.usernameTarget].health);
 
                         if (shotData.usernameTarget == clientUsername) {
+                            //update health bar
+                            if (!hpBarCtrlRef) {
+                                hpBarCtrlRef = GameObject.Find("Canvas/Health").GetComponent<HealthController>();
+                            }
+                            if (hpBarCtrlRef) {
+                                hpBarCtrlRef.HitMe();
+                            }
                             StartCoroutine(gameMgrRef.ConveyHitShot(clientDataDict[shotData.usernameOrigin].objChaserReference, clientDataDict[shotData.usernameTarget].objReference, new Vector3(shotData.hitPosition.x,shotData.hitPosition.y,shotData.hitPosition.z), shotData.damage));
                         }
                         else {
@@ -499,7 +525,18 @@ namespace FPSNetworkCode {
                 }
                 dataQueue.Dequeue();
             }
+            else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.RESPAWN) {
+                RespawnMessage spawnData = JsonUtility.FromJson<RespawnMessage>(dataQueue.Peek());
 
+                Debug.Log("[Notice] Received respawn message."); 
+
+                Respawn(new Vector3(spawnData.spawn.x, spawnData.spawn.y, spawnData.spawn.z));
+                dataQueue.Dequeue();
+            }
+            else if (JsonUtility.FromJson<FlagNetMsg>(dataQueue.Peek()).flag == Flag.MATCH_END) {
+                
+                dataQueue.Dequeue();
+            }
         }
 
         public void ConnectToServer() {
@@ -697,7 +734,7 @@ namespace FPSNetworkCode {
                 clientDataDict[getUsername].position = new Vector3(getPosX, getPosY, getPosZ);
                 clientDataDict[getUsername].yaw = getYaw;
                 clientDataDict[getUsername].pitch = getPitch;
-                clientDataDict[getUsername].health = getHealth;
+                //clientDataDict[getUsername].health = getHealth;
                 clientDataDict[getUsername].isFiring = false;
             }
             else {
@@ -709,30 +746,14 @@ namespace FPSNetworkCode {
                 newLocalPlayer.yaw = getYaw;
                 newLocalPlayer.pitch = getPitch;
                 newLocalPlayer.latency = 0;
-                newLocalPlayer.health = getHealth;
+                //newLocalPlayer.health = getHealth;
                 newLocalPlayer.isFiring = false;
                 clientDataDict.Add(getUsername, newLocalPlayer);
             }
         }
 
         public void GameSceneStart(GameplayManager gameMgr) {
-
-            if (bDebug) { Debug.Log("[Notice] Instantiating player prefabs...");}
-
-            foreach (KeyValuePair<string, PlayerData> player in clientDataDict) {
-                //Instantiate player prefabs
-                if (player.Key == clientUsername) {
-                    if (bDebug) { Debug.Log("[Notice] Instantiating local player prefab: " + player.Key);}
-                    gameMgr.SpawnPlayer(player.Key, true);
-                }
-                else {
-                    if (bDebug) { Debug.Log("[Notice] Instantiating remote player prefab: " + player.Key);}
-                    gameMgr.SpawnPlayer(player.Key, false);
-                }
-            }
-
-            if (bDebug) { Debug.Log("[Notice] Starting move update routine...");}
-            StartCoroutine(MoveUpdateRoutine());
+            StartCoroutine(GameStartDelay(gameMgr));
         }
 
         //Sends local client's position and orientation to server
@@ -825,6 +846,33 @@ namespace FPSNetworkCode {
             clientDataDict[username].isFiring = set;
         }
 
+        public void SendDeathMessage(string killer, string victim) {
+            string msgJson;
+            DeathMessage deathMsg;
+            Byte[] sendBytes;
+
+            Debug.Log("[Notice] Sending death message...");
+
+            deathMsg = new DeathMessage();
+
+            deathMsg.flag = Flag.DEATH;
+            deathMsg.usernameKiller = killer;
+            deathMsg.usernameVictim = victim;
+
+            msgJson = JsonUtility.ToJson(deathMsg);
+            sendBytes = Encoding.ASCII.GetBytes(msgJson);
+            udp.Send(sendBytes, sendBytes.Length);
+        }
+
+        public void Respawn(Vector3 spawnLocation) {
+            StartCoroutine(DeathRoutine(spawnLocation));
+        }
+
+        //TODO
+        public void BandaidRespawn() {
+
+        }
+
         IEnumerator MoveUpdateRoutine() {
             loopMoveUpdate = true;
 
@@ -851,7 +899,53 @@ namespace FPSNetworkCode {
             }
         }
 
+        IEnumerator GameStartDelay(GameplayManager gameMgr) {
+            yield return new WaitForSeconds(1.0f); 
 
+            if (bDebug) { Debug.Log("[Notice] Instantiating player prefabs...");}
+
+            foreach (KeyValuePair<string, PlayerData> player in clientDataDict) {
+                //Instantiate player prefabs
+                if (player.Key == clientUsername) {
+                    if (bDebug) { Debug.Log("[Notice] Instantiating local player prefab: " + player.Key);}
+                    gameMgr.SpawnPlayer(player.Key, true, player.Value.position);
+                }
+                else {
+                    if (bDebug) { Debug.Log("[Notice] Instantiating remote player prefab: " + player.Key);}
+                    gameMgr.SpawnPlayer(player.Key, false, player.Value.position);
+                }
+            }
+
+            if (bDebug) { Debug.Log("[Notice] Starting move update routine...");}
+            StartCoroutine(MoveUpdateRoutine());
+        }
+
+        IEnumerator DeathRoutine(Vector3 spawnLocation) {
+            Camera.main.clearFlags = CameraClearFlags.SolidColor;
+            clientDataDict[clientUsername].health = 100;
+            clientDataDict[clientUsername].objReference.gameObject.SetActive(false);
+            yield return new WaitForSeconds(4.0f);
+            clientDataDict[clientUsername].objReference.gameObject.SetActive(true);
+            clientDataDict[clientUsername].objReference.transform.position = spawnLocation;
+            Camera.main.clearFlags = CameraClearFlags.Skybox;
+        }
+
+        IEnumerator BandaidDeathRoutine() {
+            Camera.main.clearFlags = CameraClearFlags.Nothing;
+            clientDataDict[clientUsername].health = 100;
+            yield return new WaitForSeconds(2.0f);
+            
+            clientDataDict[clientUsername].objReference.transform.position = new Vector3(UnityEngine.Random.Range(-30.0f, 30.0f), 10, UnityEngine.Random.Range(-30.0f, 30.0f));
+            clientDataDict[clientUsername].health = 100;
+            //update health bar
+            if (!hpBarCtrlRef) {
+                hpBarCtrlRef = GameObject.Find("Canvas/Health").GetComponent<HealthController>();
+            }
+            if (hpBarCtrlRef) {
+                hpBarCtrlRef.Restore();
+            }
+            Camera.main.clearFlags = CameraClearFlags.Skybox;
+        }
     }
 
 }

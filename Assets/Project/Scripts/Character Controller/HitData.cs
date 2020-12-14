@@ -27,7 +27,7 @@ namespace FPSCharController {
         }
 
         public HitData(bool getIsHit, string getID, string getOrigin, Vector3 getLocation, int getDamage, float getDistance) {
-            is_hit = false;
+            is_hit = getIsHit;
             hit_name = getID;
             hit_origin_name = getOrigin;
             hit_location = getLocation;

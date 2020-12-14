@@ -141,19 +141,18 @@ namespace FPSCharController {
                 
                 if (hit.transform.tag == "Player") {
                     if (bVerboseDebug) { Debug.Log("[Notice] Player hit! " + hit.transform.name); }
-                    newHitData = new HitData(true, hit.transform.name, this.transform.name, hit.transform.position, 1, hit.distance);
-                    hit.transform.gameObject.SendMessage("GotHit", 20);
+                    newHitData = new HitData(true, hit.transform.name, this.transform.name, hit.transform.position, 20, hit.distance);
                 }
                 else {
                     if (bVerboseDebug) { Debug.Log("[Notice] Object hit! " + hit.transform.name); }
-                    newHitData = new HitData(false, hit.transform.name, this.transform.name, hit.transform.position, 1, hit.distance);
+                    newHitData = new HitData(false, hit.transform.name, this.transform.name, hit.transform.position, 20, hit.distance);
                 }
             }
             else{
                 //Debug.DrawRay(mousePosition, Camera.main.transform.TransformDirection(Vector3.forward) * hit.distance * 1000, Color.yellow);
                 if (bVerboseDebug) { Debug.Log("[Notice] No Objects hit."); }
 
-                newHitData = new HitData(false, this.transform.name, this.transform.name, hit.transform.position, 1, hit.distance);
+                newHitData = new HitData(false, this.transform.name, this.transform.name, Vector3.zero, 20, hit.distance);
             }
 
             return newHitData; //TODO make this useful

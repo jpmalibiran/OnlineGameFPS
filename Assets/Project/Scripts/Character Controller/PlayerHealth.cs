@@ -20,7 +20,7 @@ public class PlayerHealth : MonoBehaviour
         if (HealthPoints <= 0)
         {
             Destroy(gameObject);
-            MatchController.SendMessage("EnemyKilled");
+            //MatchController.SendMessage("EnemyKilled");
         }
     }
 

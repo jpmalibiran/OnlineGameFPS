@@ -232,4 +232,19 @@ namespace FPSNetworkCode {
             pitch = getPitch;
         }
     }
+
+    //From client
+    [Serializable]
+    public class DeathMessage{
+        public Flag flag;
+        public string usernameKiller;
+        public string usernameVictim;
+    }
+
+    //From server
+    [Serializable]
+    public class RespawnMessage{
+        public Flag flag;
+        public Coordinates spawn;
+    }
 }

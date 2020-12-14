@@ -40,49 +40,49 @@ public class GameplayManager : MonoBehaviour{
         }
     }
 
-    public void SpawnPlayer(string getUsername, bool spawnLocalClient) {
-        GameObject newObj;
-        GameObject newChaserObj;
+    //public void SpawnPlayer(string getUsername, bool spawnLocalClient) {
+    //    GameObject newObj;
+    //    GameObject newChaserObj;
 
-        if (spawnLocalClient) {
-            if (!playerPrefab) {
-                Debug.LogError("[Error] Player prefab missing; cannot instantiate player.");
-                return;
-            }
+    //    if (spawnLocalClient) {
+    //        if (!playerPrefab) {
+    //            Debug.LogError("[Error] Player prefab missing; cannot instantiate player.");
+    //            return;
+    //        }
 
-            newObj = Instantiate(playerPrefab, new Vector3(0,10,0), Quaternion.identity);
-            if (inputCtrlRef) {
-                inputCtrlRef.AssignCharacterToControl(newObj.GetComponent<FPSCharController.FirstPersonController>());
-            }
-            else {
-                Debug.LogError("[Error] Missing inputCtrlRef; cannot assign character control.");
-            }
-            newObj.name = getUsername;
-            netManager.AddPlayerCharRef(getUsername, newObj.transform);
-        }
-        //Spawn remote character prefab
-        else {
-            if (!remotePlayerGhostPrefab) {
-                Debug.LogError("[Error] remotePlayerGhostPrefab missing; cannot instantiate player.");
-                return;
-            }
-            if (!remotePlayerChaserPrefab) {
-                Debug.LogError("[Error] remotePlayerChaserPrefab missing; cannot instantiate player.");
-                return;
-            }
+    //        newObj = Instantiate(playerPrefab, new Vector3(0,10,0), Quaternion.identity);
+    //        if (inputCtrlRef) {
+    //            inputCtrlRef.AssignCharacterToControl(newObj.GetComponent<FPSCharController.FirstPersonController>());
+    //        }
+    //        else {
+    //            Debug.LogError("[Error] Missing inputCtrlRef; cannot assign character control.");
+    //        }
+    //        newObj.name = getUsername;
+    //        netManager.AddPlayerCharRef(getUsername, newObj.transform);
+    //    }
+    //    //Spawn remote character prefab
+    //    else {
+    //        if (!remotePlayerGhostPrefab) {
+    //            Debug.LogError("[Error] remotePlayerGhostPrefab missing; cannot instantiate player.");
+    //            return;
+    //        }
+    //        if (!remotePlayerChaserPrefab) {
+    //            Debug.LogError("[Error] remotePlayerChaserPrefab missing; cannot instantiate player.");
+    //            return;
+    //        }
 
-            newObj = Instantiate(remotePlayerGhostPrefab, new Vector3(0,10,0), Quaternion.identity);
-            newObj.name = getUsername + " Ghost";
+    //        newObj = Instantiate(remotePlayerGhostPrefab, new Vector3(0,10,0), Quaternion.identity);
+    //        newObj.name = getUsername + " Ghost";
 
-            newChaserObj = Instantiate(remotePlayerChaserPrefab, new Vector3(0,10,0), Quaternion.identity);
-            newChaserObj.name = getUsername;
+    //        newChaserObj = Instantiate(remotePlayerChaserPrefab, new Vector3(0,10,0), Quaternion.identity);
+    //        newChaserObj.name = getUsername;
 
-            newChaserObj.GetComponent<GhostChaser>().AssignGhost(newObj.transform);
+    //        newChaserObj.GetComponent<GhostChaser>().AssignGhost(newObj.transform);
 
-            netManager.AddPlayerCharRef(getUsername, newObj.transform, newChaserObj.transform);
+    //        netManager.AddPlayerCharRef(getUsername, newObj.transform, newChaserObj.transform);
 
-        }
-    }
+    //    }
+    //}
 
     public void SpawnPlayer(string getUsername, bool spawnLocalClient, Vector3 spawnLocation) {
         GameObject newObj;
